@@ -1,0 +1,43 @@
+<#ftl strip_whitespace=false>
+<mapper namespace="${namespace}">
+
+    <select id="selectById" resultType="${className}">
+        SELECT
+            *
+        FROM
+            ${tableName}
+        WHERE
+            id = ${r"#{id}"}
+    </select>
+
+    <select id="selectAll" resultType="${className}">
+        SELECT
+            *
+        FROM
+            ${tableName}
+    </select>
+
+    <insert id="insert">
+        INSERT INTO
+            ${tableName}
+        VALUES
+            (...)
+    </insert>
+
+    <update id="update">
+        UPDATE
+            ${tableName}
+        SET 
+            ...
+        WHERE
+            id = ${r"#{id}"}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM
+            ${tableName}
+        WHERE
+            id = ${r"#{id}"}
+    </delete>
+
+</mapper>

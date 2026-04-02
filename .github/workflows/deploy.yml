@@ -1,0 +1,65 @@
+name: Build NetBeans Plugin (Maven)
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven
+
+      - name: Build with Maven
+        run: mvn -B clean package
+        working-directory: com.jhappy.mybateans
+
+      # ② update site生成（重要）
+      - name: Generate Update Site
+        run: mvn org.apache.netbeans.utilities:nbm-maven-plugin:14.4:autoupdate
+        working-directory: com.jhappy.mybateans
+
+      - name: 📄 Create index.html for Update Site
+        run: |
+         REPO_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
+         OWNER=${{ github.repository_owner }}
+         BRANCH=${{ github.ref_name }}
+
+         HOME_URL="https://${OWNER}.github.io/${REPO_NAME}/"
+
+         TEMPLATE_PATH=".github/workflows/update-site-index.html"
+         TARGET_DIR="com.jhappy.mybateans/target/netbeans_site"
+         TARGET_PATH="${TARGET_DIR}/index.html"
+
+         # 念のためディレクトリ作成
+         mkdir -p $TARGET_DIR
+
+         # テンプレートコピー
+         cp $TEMPLATE_PATH $TARGET_PATH
+
+         # 変数置換
+         sed -i "s|{{HOME_URL}}|$HOME_URL|g" $TARGET_PATH
+         sed -i "s|{{BRANCH_NAME}}|$BRANCH|g" $TARGET_PATH
+         sed -i "s|{{REPO_NAME}}|$REPO_NAME|g" $TARGET_PATH  
+
+      # ③ デプロイ
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: com.jhappy.mybateans/target/netbeans_site
+          branch: gh-pages
+          target-folder: updatesite/${{ github.ref_name }}
+          clean: true
+          single-commit: true
