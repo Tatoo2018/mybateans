@@ -17,8 +17,8 @@ Add the following URLs via `Tools` > `Plugins` > `Settings` in NetBeans to insta
 
 | Branch | Update URL |
 | :--- | :--- |
-| **Main** (Stable) | `https://tatoo2018.github.io/mybateans/updatesite/main/updates.xml` |
-| **Develop** (Latest) | `https://tatoo2018.github.io/mybateans/updatesite/develop/updates.xml` |
+| **Main** (Stable) | `https://tatoo2018.github.io/MyBateans/updatesite/main/updates.xml` |
+| **Develop** (Latest) | `https://tatoo2018.github.io/MyBateans/updatesite/develop/updates.xml` |
 
 ---
 
@@ -35,8 +35,8 @@ NetBeans の `Tools` > `Plugins` > `Settings` から以下の URL を登録す�
 
 | ブランチ | 更新用 URL |
 | :--- | :--- |
-| **Main** (安定版) | `https://tatoo2018.github.io/mybateans/updatesite/main/updates.xml` |
-| **Develop** (最新版) | `https://tatoo2018.github.io/mybateans/updatesite/develop/updates.xml` |
+| **Main** (安定版) | `https://tatoo2018.github.io/MyBateans/updatesite/main/updates.xml` |
+| **Develop** (最新版) | `https://tatoo2018.github.io/MyBateans/updatesite/develop/updates.xml` |
 
 ---
 
@@ -53,5 +53,5 @@ NetBeans の `Tools` > `Plugins` > `Settings` から以下の URL を登録す�
 
 | 分支 | 更新 URL |
 | :--- | :--- |
-| **Main** (稳定版) | `https://tatoo2018.github.io/mybateans/updatesite/main/updates.xml` |
-| **Develop** (开发版) | `https://tatoo2018.github.io/mybateans/updatesite/develop/updates.xml` |
+| **Main** (稳定版) | `https://tatoo2018.github.io/MyBateans/updatesite/main/updates.xml` |
+| **Develop** (开发版) | `https://tatoo2018.github.io/MyBateans/updatesite/develop/updates.xml` |
