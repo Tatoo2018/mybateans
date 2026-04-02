@@ -1,20 +1,12 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package com.jhappy.mybateans.indexing;
 
 import java.io.IOException;
-import org.netbeans.api.editor.mimelookup.MimeRegistration;
-import org.netbeans.api.editor.mimelookup.MimeRegistrations;
-import org.netbeans.modules.parsing.api.indexing.IndexingManager;
 import org.netbeans.modules.parsing.spi.indexing.CustomIndexer;
 import org.netbeans.modules.parsing.spi.indexing.CustomIndexerFactory;
 import org.netbeans.modules.parsing.spi.indexing.Indexable;
 import org.netbeans.modules.parsing.spi.indexing.Context;
 import org.netbeans.modules.parsing.spi.indexing.support.IndexingSupport;
 import org.openide.filesystems.FileObject;
-import org.openide.util.lookup.ServiceProvider;
 
 /**
  * CustomIndexerFactory for XML files.
@@ -30,7 +22,6 @@ import org.openide.util.lookup.ServiceProvider;
  * * @author th
  */
 import org.openide.util.lookup.ServiceProvider;
-import org.netbeans.modules.parsing.spi.indexing.EmbeddingIndexerFactory;
 
 @ServiceProvider(service = CustomIndexerFactory.class)
 public class MyBatisIndexerFactory extends CustomIndexerFactory {

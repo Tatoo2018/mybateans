@@ -1,13 +1,10 @@
 package com.jhappy.mybateans.hyperlink;
 
-import com.jhappy.mybateans.indexing.MyBatisIndexer;
 import com.jhappy.mybateans.indexing.MyBatisIndexerFactory;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import javax.swing.text.Document;
 
@@ -21,26 +18,19 @@ import org.netbeans.lib.editor.hyperlink.spi.HyperlinkProviderExt;
 import org.netbeans.lib.editor.hyperlink.spi.HyperlinkType;
 
 import org.netbeans.api.java.source.JavaSource;
-import org.netbeans.api.java.source.Task;
-import org.netbeans.api.java.source.CompilationController;
-import org.netbeans.api.java.source.JavaSource.Phase;
 
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
-import javax.swing.text.StyledDocument;
 import org.netbeans.api.java.project.JavaProjectConstants;
 
 import org.netbeans.api.java.source.ClasspathInfo;
-import org.netbeans.modules.editor.NbEditorUtilities;
 
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.cookies.EditorCookie;
 import org.openide.text.Line;
 
-import org.netbeans.api.java.source.ElementHandle;
-import org.netbeans.api.java.source.SourceUtils;
 import org.netbeans.modules.editor.NbEditorUtilities;
 
 import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport;
