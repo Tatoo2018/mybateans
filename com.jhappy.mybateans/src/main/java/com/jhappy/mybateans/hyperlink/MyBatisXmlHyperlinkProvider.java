@@ -497,9 +497,6 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
         }
     }
 
-    // =========================
-    // DTO
-    // =========================
     private static class AttributeInfo {
 
         final String attrName;
@@ -528,8 +525,6 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
 
             if (ec != null) {
 
-                //
-                //StyledDocument xmlDoc = ec.openDocument();
                 ec.open();
 
                 //
@@ -544,7 +539,6 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
 
     public static boolean isExistPackage(String packageName, FileObject xmlfile) {
 
-        // 1. ソースパスからフォルダを探す
         org.netbeans.api.java.classpath.ClassPath cp
                 = org.netbeans.api.java.classpath.ClassPath.getClassPath(xmlfile, org.netbeans.api.java.classpath.ClassPath.SOURCE);
 
@@ -564,7 +558,6 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
             return;
         }
 
-        // 1. ソースパスからフォルダを探す
         org.netbeans.api.java.classpath.ClassPath cp
                 = org.netbeans.api.java.classpath.ClassPath.getClassPath(xmlfile, org.netbeans.api.java.classpath.ClassPath.SOURCE);
 
@@ -579,14 +572,11 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
             try {
                 DataObject dobj = DataObject.find(pkgFolder);
 
-                // 2. フォルダを開くための Cookie を取得
-                // プロジェクトツリーでその場所を選択・展開させるには OpenCookie が最適
                 org.openide.cookies.OpenCookie oc = dobj.getLookup().lookup(org.openide.cookies.OpenCookie.class);
 
                 if (oc != null) {
-                    oc.open(); // これでプロジェクトウィンドウが開く
+                    oc.open(); 
                 } else {
-                    // OpenCookie がない場合の予備：EditCookie を試す
                     org.openide.cookies.EditCookie ec = dobj.getLookup().lookup(org.openide.cookies.EditCookie.class);
                     if (ec != null) {
                         ec.edit();
