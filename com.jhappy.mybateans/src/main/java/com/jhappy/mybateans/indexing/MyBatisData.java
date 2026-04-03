@@ -1,12 +1,35 @@
 package com.jhappy.mybateans.indexing;
-import java.util.Map;
+import java.util.List;
 
 public class MyBatisData {
-    public final String namespace;
-    public final Map<String, Integer> idOffsets; 
 
-    public MyBatisData(String namespace, Map<String, Integer> idOffsets) {
+    /**
+     * @return the namespace
+     */
+    public String getNamespace() {
+        return namespace;
+    }
+
+    /**
+     * @return the namespaceOffset
+     */
+    public Integer getNamespaceOffset() {
+        return namespaceOffset;
+    }
+
+    /**
+     * @return the tags
+     */
+    public List<TagData> getTags() {
+        return tags;
+    }
+    private final String namespace;
+    private final Integer namespaceOffset;
+    private final List<TagData> tags;
+
+    public MyBatisData(String namespace, int namespaceOffset,List<TagData> tags) {
         this.namespace = namespace;
-        this.idOffsets = idOffsets;
+        this.namespaceOffset = namespaceOffset;
+        this.tags = tags;
     }
 }

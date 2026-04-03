@@ -26,7 +26,7 @@ import org.openide.util.lookup.ServiceProvider;
 @ServiceProvider(service = CustomIndexerFactory.class)
 public class MyBatisIndexerFactory extends CustomIndexerFactory {
 
-    public static int version = 6;
+    public static int version = 7;
     public static String INDEXER_NAME = "MyBatisIndexer10";
 
     @Override
@@ -44,7 +44,6 @@ public class MyBatisIndexerFactory extends CustomIndexerFactory {
 
     @Override
     public String getIndexerName() {
-        System.out.println("getIndexerName");
         return INDEXER_NAME; // 識別名
     }
 

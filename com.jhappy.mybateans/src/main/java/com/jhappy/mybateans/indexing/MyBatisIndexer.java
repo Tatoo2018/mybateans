@@ -1,9 +1,12 @@
 package com.jhappy.mybateans.indexing;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.xml.stream.XMLInputFactory;
@@ -16,6 +19,13 @@ import org.netbeans.modules.parsing.spi.indexing.support.IndexDocument;
 import org.netbeans.modules.parsing.spi.indexing.support.IndexingSupport;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
+import org.netbeans.api.lexer.Token;
+import org.netbeans.api.lexer.TokenHierarchy;
+import org.netbeans.api.lexer.TokenSequence;
+import org.netbeans.api.xml.lexer.XMLTokenId;
+import org.netbeans.api.java.classpath.ClassPath;
+import org.netbeans.api.java.source.JavaSource;
+import org.openide.filesystems.FileObject;
 
 public class MyBatisIndexer extends CustomIndexer {
 
@@ -55,12 +65,29 @@ public class MyBatisIndexer extends CustomIndexer {
 
                     MyBatisData mapperData = parseMyBatisXml(fo);
                     if (mapperData != null) {
-                        docmapper.addPair("mapper_namespace", mapperData.namespace, true, true);
-                        for (Map.Entry<String, Integer> entry : mapperData.idOffsets.entrySet()) {
-                            String id = entry.getKey();
-                            int offset = entry.getValue();
-                            docmapper.addPair("mapper_id", id, true, true);
-                            docmapper.addPair("id_pos_" + id, String.valueOf(offset), true, true);
+
+                        String namespace = mapperData.getNamespace();
+
+                        boolean exists = existsJavaType(fo, namespace);
+                        docmapper.addPair("namespace_exists", String.valueOf(exists), true, true);
+
+                        docmapper.addPair("mapper_namespace", namespace, true, true);
+                        for (TagData tagData : mapperData.getTags()) {
+
+                            Map<String, AttributeData> attr = tagData.getAttributes();
+                            if (attr != null) {
+
+                                AttributeData namespaceData = attr.get("id");
+                                if (namespaceData != null) {
+                                    String id = namespaceData.getValue();
+                                    int offset = namespaceData.getValueoffset();
+
+                                    docmapper.addPair("mapper_id", id, true, true);
+                                    docmapper.addPair("id_pos_" + id, String.valueOf(offset), true, true);
+                                }
+
+                            }
+
                         }
                     }
                     support.removeDocuments(indexable);
@@ -72,26 +99,26 @@ public class MyBatisIndexer extends CustomIndexer {
                     MyBatisConfigData configData = parseTypeAliases(fo);
 
                     support.removeDocuments(indexable);
-                    if (!configData.aliases.isEmpty()) {
+                    if (!configData.getAliases().isEmpty()) {
 
-                        for (Map.Entry<String, AliasData> entry : configData.aliases.entrySet()) {
+                        for (Map.Entry<String, AliasData> entry : configData.getAliases().entrySet()) {
                             IndexDocument docconfig = support.createDocument(indexable);
 
                             String alias = entry.getKey();
                             AliasData data = entry.getValue();
 
                             docconfig.addPair("typeAlias", alias, true, true);
-                            docconfig.addPair("typeAlias_fqn", data.fqn, true, true);
-                            docconfig.addPair("typeAlias_offset", String.valueOf(data.offset), true, true);
+                            docconfig.addPair("typeAlias_fqn", data.getFqn(), true, true);
+                            docconfig.addPair("typeAlias_offset", String.valueOf(data.getOffset()), true, true);
 
                             support.addDocument(docconfig);
 
                         }
                     }
 
-                    if (!configData.packages.isEmpty()) {
+                    if (!configData.getPackages().isEmpty()) {
 
-                        for (PackageData entry : configData.packages) {
+                        for (PackageData entry : configData.getPackages()) {
                             IndexDocument docconfig = support.createDocument(indexable);
 
                             String name = entry.name;
@@ -118,59 +145,149 @@ public class MyBatisIndexer extends CustomIndexer {
         }
     }
 
-    // --- XML パース用 ---
-    private static MyBatisData parseMyBatisXml(FileObject fo) {
-        String namespace = null;
-        Map<String, Integer> idOffsets = new HashMap<>();
+    public static boolean existsJavaType(FileObject fo, String fqn) {
+        try {
+            org.netbeans.api.java.classpath.ClassPath cp
+                    = org.netbeans.api.java.classpath.ClassPath.getClassPath(fo, org.netbeans.api.java.classpath.ClassPath.SOURCE);
 
-        XMLInputFactory factory = XMLInputFactory.newInstance();
-        factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
-        factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+            if (cp == null) {
+                return false;
+            }
 
-        try (InputStream is = fo.getInputStream()) {
-            XMLStreamReader reader = factory.createXMLStreamReader(is);
+            FileObject javaFile = cp.findResource(fqn.replace('.', '/') + ".java");
+            if (javaFile != null) {
+                return true;
+            }
 
-            while (reader.hasNext()) {
-                int event = reader.next();
-                if (event == XMLStreamConstants.START_ELEMENT) {
-                    String tag = reader.getLocalName();
+            // classも見る（compile後）
+            org.netbeans.api.java.classpath.ClassPath compileCp
+                    = org.netbeans.api.java.classpath.ClassPath.getClassPath(fo, org.netbeans.api.java.classpath.ClassPath.COMPILE);
 
-                    if ("mapper".equals(tag)) {
-                        namespace = reader.getAttributeValue(null, "namespace");
-                    } else if (SQL_TAGS.contains(tag)) {
-                        String id = reader.getAttributeValue(null, "id");
-                        if (id != null) {
-                            int offset = reader.getLocation().getCharacterOffset();
-                            idOffsets.put(id, offset);
+            if (compileCp != null) {
+                FileObject classFile = compileCp.findResource(fqn.replace('.', '/') + ".class");
+                return classFile != null;
+            }
+
+        } catch (Exception e) {
+            // 無視
+        }
+        return false;
+    }
+
+    public static MyBatisData parseMyBatisConfigXml(FileObject fo) {
+
+        try {
+            String text = fo.asText();
+            TokenHierarchy<String> th = TokenHierarchy.create(text, XMLTokenId.language());
+            TokenSequence<XMLTokenId> ts = th.tokenSequence(XMLTokenId.language());
+
+            if (ts == null) {
+                return null;
+            }
+
+            if (!isConfigXml(fo)) {
+                return null;
+            }
+
+        } catch (Exception ex) {
+            Exceptions.printStackTrace(ex);
+            return null;
+        }
+
+        return null;
+
+    }
+
+    public static MyBatisData parseMyBatisXml(FileObject fo) {
+        try {
+
+            String text = fo.asText();
+            TokenHierarchy<String> th = TokenHierarchy.create(text, XMLTokenId.language());
+            TokenSequence<XMLTokenId> ts = th.tokenSequence(XMLTokenId.language());
+
+            if (ts == null) {
+                return null;
+            }
+
+            if (!isMapperXml(fo)) {
+                return null;
+            }
+
+            String namespace = null;
+            int namespaceOffset = -1;
+            List<TagData> tags = new ArrayList<>();
+            TagData currentTagData = null;
+
+            while (ts.moveNext()) {
+                Token<XMLTokenId> token = ts.token();
+                XMLTokenId id = token.id();
+
+                // 1. タグの開始 (<mapper, <select など)
+                if (id == XMLTokenId.TAG) {
+                    String tagText = token.text().toString();
+                    if (tagText.startsWith("<") && !tagText.startsWith("</")) {
+                        String tagName = tagText.substring(1).trim();
+                        currentTagData = new TagData(tagName);
+                        tags.add(currentTagData);
+                    }
+                }
+
+                // 2. 属性の抽出
+                if (id == XMLTokenId.ARGUMENT && currentTagData != null) {
+                    String attrName = token.text().toString();
+                    int attrNameOffset = ts.offset();
+
+                    // 属性値 (VALUE) までトークンを進める
+                    while (ts.moveNext() && ts.token().id() != XMLTokenId.VALUE) {
+                        // スキップ (OPERATOR "=" など)
+                    }
+
+                    Token<XMLTokenId> valToken = ts.token();
+                    if (valToken != null && valToken.id() == XMLTokenId.VALUE) {
+                        String fullVal = valToken.text().toString();
+                        if (fullVal.length() >= 2) {
+                            String pureValue = fullVal.substring(1, fullVal.length() - 1);
+                            int valOffset = ts.offset() + 1;
+
+                            // 属性データを生成して現在のタグに追加
+                            AttributeData attr = new AttributeData(attrName, attrNameOffset, pureValue, valOffset);
+                            currentTagData.getAttributes().put(attrName, attr);
+
+                            // namespace だけは特別に MyBatisData 直下で管理すると便利
+                            if ("mapper".equals(currentTagData.getTagName()) && "namespace".equals(attrName)) {
+                                namespace = pureValue;
+                                namespaceOffset = valOffset;
+                            }
                         }
                     }
                 }
             }
-        } catch (Exception e) {
-            return null;
+
+            return (namespace != null) ? new MyBatisData(namespace, namespaceOffset, tags) : null;
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (Exception ex) {
+            Exceptions.printStackTrace(ex);
         }
-
-        return (namespace != null) ? new MyBatisData(namespace, idOffsets) : null;
+        return null;
     }
 
-    private static class MyBatisData {
-
-        final String namespace;
-        final Map<String, Integer> idOffsets;
-
-        MyBatisData(String ns, Map<String, Integer> offsets) {
-            this.namespace = ns;
-            this.idOffsets = offsets;
+    public static boolean isMapperXml(FileObject fo){
+        try {
+            return hasRootElement(fo, "mapper");
+        } catch (Exception ex) {
+            Exceptions.printStackTrace(ex);
         }
+        return false;
     }
 
-    // --- XML タイプ判定用 --- 
-    public static boolean isMapperXml(FileObject fo) throws Exception {
-        return hasRootElement(fo, "mapper");
-    }
-
-    public static boolean isConfigXml(FileObject fo) throws Exception {
-        return hasRootElement(fo, "configuration");
+    public static boolean isConfigXml(FileObject fo) {
+        try {
+            return hasRootElement(fo, "configuration");
+        } catch (Exception ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return false;
     }
 
     public static boolean isSpringConfigXml(FileObject fo) throws Exception {
@@ -251,17 +368,12 @@ public class MyBatisIndexer extends CustomIndexer {
             // 無視
         }
 
-        MyBatisConfigData configData = new MyBatisConfigData();
-        configData.aliases = result;
-        configData.packages = packages;
+        MyBatisConfigData configData = new MyBatisConfigData(result, packages);
 
         return configData;
     }
 
-
-
-
-    private static String getContentType(FileObject fo) {
+    public static String getContentType(FileObject fo) {
         if (!"xml".equals(fo.getExt())) {
             return null;
         }
@@ -280,6 +392,37 @@ public class MyBatisIndexer extends CustomIndexer {
         } catch (Exception e) {
             // 無視して続行
         }
+        return null;
+    }
+
+    /**
+     * 指定された FQN に対応する JavaSource を取得する
+     *
+     * @param fo コンテキストとなるファイル（XMLファイルなど）
+     * @param fqn 探したい Java クラスの完全修飾名 (例: com.jhappy.mapper.CustomerMapper)
+     * @return 見つかった場合は JavaSource、見つからない場合は null
+     */
+    public static JavaSource getJavaSource(FileObject fo, String fqn) {
+        if (fo == null || fqn == null || fqn.isEmpty()) {
+            return null;
+        }
+
+        // 1. プロジェクトのソースパスを取得
+        ClassPath cp = ClassPath.getClassPath(fo, ClassPath.SOURCE);
+        if (cp == null) {
+            return null;
+        }
+
+        // 2. FQN をファイルパス形式に変換して、実際のファイル（FileObject）を探す
+        // 例: com.jhappy.Test -> com/jhappy/Test.java
+        String resourcePath = fqn.replace('.', '/') + ".java";
+        FileObject javaFile = cp.findResource(resourcePath);
+
+        if (javaFile != null) {
+
+            return JavaSource.forFileObject(javaFile);
+        }
+
         return null;
     }
 

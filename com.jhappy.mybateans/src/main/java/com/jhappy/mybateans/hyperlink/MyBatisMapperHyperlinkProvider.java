@@ -1,9 +1,9 @@
 package com.jhappy.mybateans.hyperlink;
 
 import com.jhappy.mybateans.indexing.MyBatisIndexerFactory;
+import com.jhappy.mybateans.util.NbUtil;
 import com.sun.source.util.TreePath;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
@@ -12,13 +12,9 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.swing.text.Document;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
-import org.netbeans.api.java.project.JavaProjectConstants;
 import org.netbeans.api.java.source.JavaSource;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectUtils;
-import org.netbeans.api.project.SourceGroup;
-import org.netbeans.api.project.Sources;
 import org.netbeans.lib.editor.hyperlink.spi.HyperlinkProviderExt;
 import org.netbeans.lib.editor.hyperlink.spi.HyperlinkType;
 import org.netbeans.modules.parsing.spi.indexing.support.IndexResult;
@@ -161,24 +157,7 @@ public class MyBatisMapperHyperlinkProvider implements HyperlinkProviderExt {
             return null;
         }
 
-        Sources sources = ProjectUtils.getSources(project);
-
-        List<FileObject> roots = new ArrayList<>();
-
-// Java
-        for (SourceGroup g : sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA)) {
-            roots.add(g.getRootFolder());
-        }
-
-// Resources（Maven）
-        for (SourceGroup g : sources.getSourceGroups("resources")) {
-            roots.add(g.getRootFolder());
-        }
-
-// Generic（保険）
-        for (SourceGroup g : sources.getSourceGroups(Sources.TYPE_GENERIC)) {
-            roots.add(g.getRootFolder());
-        }
+        List<FileObject> roots = NbUtil.getRootsForSearch(project);
 
         QuerySupport querySupport = QuerySupport.forRoots(MyBatisIndexerFactory.INDEXER_NAME, MyBatisIndexerFactory.version, roots.toArray(new FileObject[0]));
 
