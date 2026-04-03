@@ -1,14 +1,19 @@
 package com.jhappy.mybateans.indexing;
 
+import com.jhappy.mybateans.util.xml.parser.AttributeData;
+import com.jhappy.mybateans.util.xml.parser.TagData;
+import com.jhappy.mybateans.util.xml.parser.XmlData;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.swing.text.Document;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
@@ -17,7 +22,6 @@ import org.netbeans.modules.parsing.spi.indexing.CustomIndexer;
 import org.netbeans.modules.parsing.spi.indexing.Indexable;
 import org.netbeans.modules.parsing.spi.indexing.support.IndexDocument;
 import org.netbeans.modules.parsing.spi.indexing.support.IndexingSupport;
-import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
@@ -25,13 +29,24 @@ import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.api.xml.lexer.XMLTokenId;
 import org.netbeans.api.java.classpath.ClassPath;
 import org.netbeans.api.java.source.JavaSource;
+import org.netbeans.spi.editor.hints.ErrorDescription;
+import org.netbeans.spi.editor.hints.ErrorDescriptionFactory;
+import org.netbeans.spi.editor.hints.HintsController;
+import org.netbeans.spi.editor.hints.Severity;
+import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
+import org.openide.loaders.DataObject;
 
 public class MyBatisIndexer extends CustomIndexer {
 
     private static final Set<String> SQL_TAGS = new HashSet<>(
-            Arrays.asList("select", "insert", "update", "delete", "sql")
+            Arrays.asList("select", "insert", "update", "delete")
     );
+
+    public static final String INDEX_KEY_MAPPER_ID = "mapper_id";
+    public static final String INDEX_KEY_MAPPER_ID_OFFSET = INDEX_KEY_MAPPER_ID + "_offset";
+    public static final String INDEX_KEY_MAPPER_NAMESPACE = "mapper_namespace";
+    public static final String INDEX_KEY_MAPPER_NAMESPACE_OFFSET = INDEX_KEY_MAPPER_NAMESPACE + "_offset";
 
     @Override
     protected void index(Iterable<? extends Indexable> indexables, Context context) {
@@ -61,75 +76,71 @@ public class MyBatisIndexer extends CustomIndexer {
 
             switch (type) {
                 case "mapper":
-                    IndexDocument docmapper = support.createDocument(indexable);
 
-                    MyBatisData mapperData = parseMyBatisXml(fo);
-                    if (mapperData != null) {
+                    support.removeDocuments(indexable);
 
-                        String namespace = mapperData.getNamespace();
+                    XmlData mapperRoot = XmlData.parseFullXml(fo);
+                    if (mapperRoot != null) {
 
-                        boolean exists = existsJavaType(fo, namespace);
-                        docmapper.addPair("namespace_exists", String.valueOf(exists), true, true);
+                        Map<String, String> headerData = getMapperTagData(mapperRoot);
 
-                        docmapper.addPair("mapper_namespace", namespace, true, true);
-                        for (TagData tagData : mapperData.getTags()) {
+                        try {
+                            DataObject dobj = DataObject.find(fo);
+                            EditorCookie ec = dobj.getLookup().lookup(EditorCookie.class);
 
-                            Map<String, AttributeData> attr = tagData.getAttributes();
-                            if (attr != null) {
+                            // エディタが開いていればそのDocument、閉じていれば仮想的なDocumentをロード
+                            Document doc = ec.openDocument();
 
-                                AttributeData namespaceData = attr.get("id");
-                                if (namespaceData != null) {
-                                    String id = namespaceData.getValue();
-                                    int offset = namespaceData.getValueoffset();
+                            String namespace = headerData.get("mapper_namespace");
+                            String mapperNamespaceOffsetStr = headerData.get("mapper_namespace_offset");
+                            int namespaceOffset = (mapperNamespaceOffsetStr != null) ? Integer.parseInt(mapperNamespaceOffsetStr) : -1;
 
-                                    docmapper.addPair("mapper_id", id, true, true);
-                                    docmapper.addPair("id_pos_" + id, String.valueOf(offset), true, true);
-                                }
+                            if (!existsJavaType(fo, namespace)) {
+                                List<ErrorDescription> errors = new ArrayList<>();
+                                errors.add(ErrorDescriptionFactory.createErrorDescription(
+                                        Severity.ERROR,
+                                        "Namespace '" + namespace + "' not found.",
+                                        fo,
+                                        namespaceOffset,
+                                        namespaceOffset + namespace.length()
+                                ));
+                                HintsController.setErrors(doc, "MyBatis", errors);
+                                fo.setAttribute("mybatis_error_status", "error");
 
+                            } else {
+                                HintsController.setErrors(doc, "MyBatis", Collections.emptyList());
                             }
 
+                        } catch (IOException ex) {
+                            Exceptions.printStackTrace(ex);
                         }
+
+                        List<XmlData> sqlNodes = getSqlTagData(mapperRoot);
+
+                        List<String[]> mapperConfs = new ArrayList<>();
+                        mapperConfs.add(new String[]{"id", INDEX_KEY_MAPPER_ID});
+                        saveIndex(sqlNodes, support, indexable, mapperConfs, headerData);
+
                     }
-                    support.removeDocuments(indexable);
-                    support.addDocument(docmapper);
                     break;
 
                 case "config":
 
-                    MyBatisConfigData configData = parseTypeAliases(fo);
-
                     support.removeDocuments(indexable);
-                    if (!configData.getAliases().isEmpty()) {
 
-                        for (Map.Entry<String, AliasData> entry : configData.getAliases().entrySet()) {
-                            IndexDocument docconfig = support.createDocument(indexable);
+                    XmlData xmldata = XmlData.parseFullXml(fo);
 
-                            String alias = entry.getKey();
-                            AliasData data = entry.getValue();
+                    List<XmlData> typeAliasList = xmldata.select("configuration", "typeAliases", "typeAlias");
+                    List<String[]> confs1 = new ArrayList<>();
+                    confs1.add(new String[]{"alias", "typeAlias"});
+                    confs1.add(new String[]{"type", "typeAlias_fqn"});
+                    saveIndex(typeAliasList, support, indexable, confs1, null);
 
-                            docconfig.addPair("typeAlias", alias, true, true);
-                            docconfig.addPair("typeAlias_fqn", data.getFqn(), true, true);
-                            docconfig.addPair("typeAlias_offset", String.valueOf(data.getOffset()), true, true);
+                    List<XmlData> packageList = xmldata.select("configuration", "typeAliases", "package");
+                    List<String[]> confs2 = new ArrayList<>();
+                    confs2.add(new String[]{"name", "typeAlias_package"});
+                    saveIndex(packageList, support, indexable, confs2, null);
 
-                            support.addDocument(docconfig);
-
-                        }
-                    }
-
-                    if (!configData.getPackages().isEmpty()) {
-
-                        for (PackageData entry : configData.getPackages()) {
-                            IndexDocument docconfig = support.createDocument(indexable);
-
-                            String name = entry.name;
-
-                            docconfig.addPair("typeAlias_package", name, true, true);
-                            docconfig.addPair("typeAlias_package_offset", String.valueOf(entry.offset), true, true);
-
-                            support.addDocument(docconfig);
-
-                        }
-                    }
                     break;
 
                 case "springConfig":
@@ -140,6 +151,76 @@ public class MyBatisIndexer extends CustomIndexer {
                     support.removeDocuments(indexable);
                     support.addDocument(docspring);
                     break;
+            }
+
+        }
+    }
+
+    public static List<XmlData> getSqlTagData(XmlData mapperRoot) {
+        List<XmlData> sqlNodes = new ArrayList<>();
+        for (String tagName : SQL_TAGS) {
+            sqlNodes.addAll(mapperRoot.select("mapper", tagName));
+        }
+        return sqlNodes;
+    }
+
+    public static Map<String, String> getMapperTagData(XmlData mapperRoot) {
+
+        Map<String, String> headerData = new HashMap<>();
+
+        List<XmlData> nsAttr = mapperRoot.select("mapper");
+        if (!nsAttr.isEmpty()) {
+
+            XmlData data = nsAttr.get(0);
+            Map<String, AttributeData> ns = data.getAttributes();
+
+            AttributeData namespaceData = ns.get("namespace");
+            if (namespaceData != null) {
+
+                String namespace = namespaceData.getValue();
+                String namespaceOffset = String.valueOf(namespaceData.getValueoffset());
+
+                headerData.put("mapper_namespace", namespace);
+                headerData.put("mapper_namespace_offset", namespaceOffset);
+                return headerData;
+            }
+
+        }
+        return null;
+    }
+
+    public void saveIndex(List<XmlData> packageList, IndexingSupport support, Indexable indexable, List<String[]> confs, Map<String, String> headerData) {
+        for (XmlData data : packageList) {
+
+            Map<String, AttributeData> attrs = data.getAttributes();
+            if (attrs != null) {
+
+                IndexDocument docconfig = support.createDocument(indexable);
+
+                if (headerData != null) {
+                    for (String key : headerData.keySet()) {
+                        docconfig.addPair(key, headerData.get(key), true, true);
+                    }
+
+                }
+
+                for (String[] conf : confs) {
+
+                    String attrName = conf[0];
+                    String indexKeyForAttrValue = conf[1];
+                    String indexKeyForAttrValueOffset = indexKeyForAttrValue + "_offset";
+
+                    AttributeData aliasdata = attrs.get(attrName);
+                    if (aliasdata != null) {
+                        String value = aliasdata.getValue();
+                        int offset = aliasdata.getValueoffset();
+                        docconfig.addPair(indexKeyForAttrValue, value, true, true);
+                        docconfig.addPair(indexKeyForAttrValueOffset, String.valueOf(offset), true, true);
+                    }
+                }
+
+                support.addDocument(docconfig);
+
             }
 
         }
@@ -198,81 +279,7 @@ public class MyBatisIndexer extends CustomIndexer {
 
     }
 
-    public static MyBatisData parseMyBatisXml(FileObject fo) {
-        try {
-
-            String text = fo.asText();
-            TokenHierarchy<String> th = TokenHierarchy.create(text, XMLTokenId.language());
-            TokenSequence<XMLTokenId> ts = th.tokenSequence(XMLTokenId.language());
-
-            if (ts == null) {
-                return null;
-            }
-
-            if (!isMapperXml(fo)) {
-                return null;
-            }
-
-            String namespace = null;
-            int namespaceOffset = -1;
-            List<TagData> tags = new ArrayList<>();
-            TagData currentTagData = null;
-
-            while (ts.moveNext()) {
-                Token<XMLTokenId> token = ts.token();
-                XMLTokenId id = token.id();
-
-                // 1. タグの開始 (<mapper, <select など)
-                if (id == XMLTokenId.TAG) {
-                    String tagText = token.text().toString();
-                    if (tagText.startsWith("<") && !tagText.startsWith("</")) {
-                        String tagName = tagText.substring(1).trim();
-                        currentTagData = new TagData(tagName);
-                        tags.add(currentTagData);
-                    }
-                }
-
-                // 2. 属性の抽出
-                if (id == XMLTokenId.ARGUMENT && currentTagData != null) {
-                    String attrName = token.text().toString();
-                    int attrNameOffset = ts.offset();
-
-                    // 属性値 (VALUE) までトークンを進める
-                    while (ts.moveNext() && ts.token().id() != XMLTokenId.VALUE) {
-                        // スキップ (OPERATOR "=" など)
-                    }
-
-                    Token<XMLTokenId> valToken = ts.token();
-                    if (valToken != null && valToken.id() == XMLTokenId.VALUE) {
-                        String fullVal = valToken.text().toString();
-                        if (fullVal.length() >= 2) {
-                            String pureValue = fullVal.substring(1, fullVal.length() - 1);
-                            int valOffset = ts.offset() + 1;
-
-                            // 属性データを生成して現在のタグに追加
-                            AttributeData attr = new AttributeData(attrName, attrNameOffset, pureValue, valOffset);
-                            currentTagData.getAttributes().put(attrName, attr);
-
-                            // namespace だけは特別に MyBatisData 直下で管理すると便利
-                            if ("mapper".equals(currentTagData.getTagName()) && "namespace".equals(attrName)) {
-                                namespace = pureValue;
-                                namespaceOffset = valOffset;
-                            }
-                        }
-                    }
-                }
-            }
-
-            return (namespace != null) ? new MyBatisData(namespace, namespaceOffset, tags) : null;
-        } catch (IOException ex) {
-            Exceptions.printStackTrace(ex);
-        } catch (Exception ex) {
-            Exceptions.printStackTrace(ex);
-        }
-        return null;
-    }
-
-    public static boolean isMapperXml(FileObject fo){
+    public static boolean isMapperXml(FileObject fo) {
         try {
             return hasRootElement(fo, "mapper");
         } catch (Exception ex) {
@@ -313,64 +320,6 @@ public class MyBatisIndexer extends CustomIndexer {
             }
         }
         return false;
-    }
-
-    private static MyBatisConfigData parseTypeAliases(FileObject fo) {
-
-        Map<String, AliasData> result = new HashMap<>();
-
-        XMLInputFactory factory = XMLInputFactory.newInstance();
-        factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
-        factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
-
-        Set<PackageData> packages = new HashSet<>();
-
-        try (InputStream is = fo.getInputStream()) {
-            XMLStreamReader reader = factory.createXMLStreamReader(is);
-            boolean inTypeAliases = false;
-
-            while (reader.hasNext()) {
-                int event = reader.next();
-
-                if (event == XMLStreamConstants.START_ELEMENT) {
-                    String tag = reader.getLocalName();
-
-                    if ("typeAliases".equals(tag)) {
-                        inTypeAliases = true;
-
-                    } else if (inTypeAliases && "typeAlias".equals(tag)) {
-                        String alias = reader.getAttributeValue(null, "alias");
-                        String type = reader.getAttributeValue(null, "type");
-
-                        if (alias != null && type != null) {
-                            int offset = reader.getLocation().getCharacterOffset();
-
-                            result.put(alias, new AliasData(type, offset));
-                        }
-                    } else if (inTypeAliases && "package".equals(tag)) {
-                        String name = reader.getAttributeValue(null, "name");
-
-                        if (name != null) {
-                            int offset = reader.getLocation().getCharacterOffset();
-                            packages.add(new PackageData(name, offset));
-
-                        }
-
-                    }
-
-                } else if (event == XMLStreamConstants.END_ELEMENT) {
-                    if ("typeAliases".equals(reader.getLocalName())) {
-                        inTypeAliases = false;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            // 無視
-        }
-
-        MyBatisConfigData configData = new MyBatisConfigData(result, packages);
-
-        return configData;
     }
 
     public static String getContentType(FileObject fo) {

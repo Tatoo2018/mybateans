@@ -73,7 +73,8 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
         }
 
         return "namespace".equals(attr.attrName)
-                || "id".equals(attr.attrName) || TYPE_REF_ATTRS.contains(attr.attrName)
+                || ("id".equals(attr.attrName)&& !"sql".equals(attr.tabName)) 
+                || TYPE_REF_ATTRS.contains(attr.attrName)
                 || ("package".equals(attr.tabName) && "name".equals(attr.attrName));
     }
 
@@ -133,6 +134,7 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
             String alias = attr.attrValue;
 
             jumpByClassOrAlias(project, alias, xmlfile, doc);
+            
         } else if ("name".equals(attr.attrName) && "package".equals(attr.tabName)) {
 
             String packagename = attr.attrValue;
@@ -181,7 +183,7 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
         }
 
         jumpToClass(alias, doc);
-        return;
+    
     }
 
     private static String resolveFromPackages(FileObject xmlfile, String simpleName) {
@@ -316,6 +318,7 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
     }
 
     private AttributeInfo getAttributeAt(Document doc, int offset) {
+        
         final AttributeInfo[] result = new AttributeInfo[1];
 
         doc.render(() -> {

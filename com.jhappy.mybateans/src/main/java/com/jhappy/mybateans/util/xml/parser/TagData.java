@@ -1,4 +1,4 @@
-package com.jhappy.mybateans.indexing;
+package com.jhappy.mybateans.util.xml.parser;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,10 +1,11 @@
 package com.jhappy.mybateans.validators;
 
 import com.jhappy.mybateans.hyperlink.MyBatisXmlHyperlinkProvider;
-import com.jhappy.mybateans.indexing.AttributeData;
+import com.jhappy.mybateans.util.xml.parser.AttributeData;
 import com.jhappy.mybateans.indexing.MyBatisData;
 import com.jhappy.mybateans.indexing.MyBatisIndexer;
-import com.jhappy.mybateans.indexing.TagData;
+import com.jhappy.mybateans.util.xml.parser.TagData;
+import com.jhappy.mybateans.util.xml.parser.XmlData;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -35,17 +36,13 @@ public class MyBatisValidationTask extends ParserResultTask {
     @Override
     public void run(Parser.Result result, SchedulerEvent event) {
 
-        System.out.println("MyBatisValidationTask run");
-
         Snapshot snapshot = result.getSnapshot();
         FileObject fo = snapshot.getSource().getFileObject();
         Document doc = snapshot.getSource().getDocument(false);
 
         List<ErrorDescription> errors = new ArrayList<>();
 
-        if (result != null && result instanceof MyBatisConfigParserResult1) {
-
-            MyBatisConfigParserResult1 mybatisConfigResult = (MyBatisConfigParserResult1) result;
+        if (result instanceof MyBatisConfigXmlParserResult mybatisConfigResult) {
 
             for (AttributeData attr : mybatisConfigResult.getTypeAliases()) {
                 if (attr != null) {
@@ -78,9 +75,8 @@ public class MyBatisValidationTask extends ParserResultTask {
 
             }
 
-        } else if (result != null && result instanceof MyBatisParserResult) {
+        } else if (result instanceof MyBatisMapperXmlParseResult mybatisdata) {
 
-            MyBatisParserResult mybatisdata = (MyBatisParserResult) result;
             MyBatisData mybatismapperdata = mybatisdata.getMyBatisData();
             if (mybatismapperdata == null) {
                 return;
@@ -101,7 +97,7 @@ public class MyBatisValidationTask extends ParserResultTask {
                 if (exists) {
 
                     Set<String> javaMethods = getJavaMethods(fo, namespace);
-                    for (TagData tagData : mybatismapperdata.getTags()) {
+                    for (XmlData tagData : mybatismapperdata.getTags()) {
 
                         AttributeData idAttr = tagData.getAttributes().get("id");
                         if (idAttr != null) {
@@ -112,6 +108,7 @@ public class MyBatisValidationTask extends ParserResultTask {
                                 errors.add(error);
 
                             }
+
                         }
 
                     }
@@ -119,9 +116,9 @@ public class MyBatisValidationTask extends ParserResultTask {
                 }
             }
 
-            List<TagData> idDatas = mybatismapperdata.getTags();
+            List<XmlData> idDatas = mybatismapperdata.getTags();
 
-            for (TagData tagData : idDatas) {
+            for (XmlData tagData : idDatas) {
 
                 AttributeData attrData = tagData.getAttributes().get("resultType");
                 if (attrData != null) {
@@ -142,10 +139,17 @@ public class MyBatisValidationTask extends ParserResultTask {
         HintsController.setErrors(doc, "MyBatis", errors);
     }
 
+    /**
+     *
+     * @param value
+     * @param fo
+     * @param offset
+     * @return
+     */
     public ErrorDescription addError(String value, FileObject fo, int offset) {
         ErrorDescription error = ErrorDescriptionFactory.createErrorDescription(
                 Severity.ERROR,
-                 value + " not found.",
+                value + " not found.",
                 fo,
                 offset,
                 offset + value.length()

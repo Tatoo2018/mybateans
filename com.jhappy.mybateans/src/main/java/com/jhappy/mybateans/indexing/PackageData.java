@@ -5,7 +5,7 @@ package com.jhappy.mybateans.indexing;
  * @author th
  */
 class PackageData {
-    
+
     String name;
     int offset;
 
@@ -13,5 +13,5 @@ class PackageData {
         this.name = name;
         this.offset = offset;
     }
-    
+
 }

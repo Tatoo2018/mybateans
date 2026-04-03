@@ -1,4 +1,6 @@
 package com.jhappy.mybateans.indexing;
+import com.jhappy.mybateans.util.xml.parser.TagData;
+import com.jhappy.mybateans.util.xml.parser.XmlData;
 import java.util.List;
 
 public class MyBatisData {
@@ -20,14 +22,14 @@ public class MyBatisData {
     /**
      * @return the tags
      */
-    public List<TagData> getTags() {
+    public List<XmlData>  getTags() {
         return tags;
     }
     private final String namespace;
     private final Integer namespaceOffset;
-    private final List<TagData> tags;
+    private final List<XmlData>  tags;
 
-    public MyBatisData(String namespace, int namespaceOffset,List<TagData> tags) {
+    public MyBatisData(String namespace, int namespaceOffset,List<XmlData>  tags) {
         this.namespace = namespace;
         this.namespaceOffset = namespaceOffset;
         this.tags = tags;

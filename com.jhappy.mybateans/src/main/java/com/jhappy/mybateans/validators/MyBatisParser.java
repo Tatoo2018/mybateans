@@ -1,11 +1,12 @@
 package com.jhappy.mybateans.validators;
 
-import com.jhappy.mybateans.indexing.AttributeData;
+import com.jhappy.mybateans.util.xml.parser.AttributeData;
 import com.jhappy.mybateans.indexing.MyBatisData;
 import com.jhappy.mybateans.indexing.MyBatisIndexer;
-import com.jhappy.mybateans.indexing.XmlData;
+import com.jhappy.mybateans.util.xml.parser.XmlData;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import javax.swing.event.ChangeListener;
 import org.netbeans.modules.parsing.api.Snapshot;
 import org.netbeans.modules.parsing.api.Task;
@@ -27,37 +28,49 @@ public class MyBatisParser extends Parser {
 
         if (MyBatisIndexer.isConfigXml(fo)) {
             XmlData xmldata = XmlData.parseFullXml(fo);
-            List<XmlData> packageList = xmldata.select("configuration>typeAliases>package");
+
+            List<XmlData> packageList = xmldata.select("configuration", "typeAliases", "package");
 
             for (XmlData data : packageList) {
 
-                AttributeData attr = data.attributes.get("name");
+                AttributeData attr = data.getAttributes().get("name");
                 if (attr != null) {
                     packages.add(attr);
                 }
 
             }
 
-            List<XmlData> typeAliaslist = xmldata.select("configuration>typeAliases>typeAlias");
+            List<XmlData> typeAliaslist = xmldata.select("configuration", "typeAliases", "typeAlias");
 
             for (XmlData data : typeAliaslist) {
 
-                AttributeData attr = data.attributes.get("type");
+                AttributeData attr = data.getAttributes().get("type");
                 if (attr != null) {
                     typeAliases.add(attr);
                 }
 
             }
 
-            lastResult = new MyBatisConfigParserResult1(snapshot, packages, typeAliases);
+            lastResult = new MyBatisConfigXmlParserResult(snapshot, packages, typeAliases);
 
         } else if (MyBatisIndexer.isMapperXml(fo)) {
 
-            MyBatisData mybatisData = MyBatisIndexer.parseMyBatisXml(fo);
+            
+            XmlData mapperRoot = XmlData.parseFullXml(fo);
 
-            if (mybatisData != null) {
-                lastResult = new MyBatisParserResult(snapshot, mybatisData);
+            Map<String, String> mapperTagData = MyBatisIndexer.getMapperTagData(mapperRoot);
+            String mapperNamespace = mapperTagData.get("mapper_namespace");
+            String mapperNamespaceOffsetStr = mapperTagData.get("mapper_namespace_offset");
+
+            if (mapperNamespace != null) {
+                int mapperNamespaceOffset = (mapperNamespaceOffsetStr != null) ? Integer.parseInt(mapperNamespaceOffsetStr) : -1;
+                List<XmlData> sqlTagList = MyBatisIndexer.getSqlTagData(mapperRoot);
+
+                MyBatisData mybatisData = new MyBatisData(mapperNamespace, mapperNamespaceOffset, sqlTagList);
+
+                lastResult = new MyBatisMapperXmlParseResult(snapshot, mybatisData);
             }
+
         }
 
     }

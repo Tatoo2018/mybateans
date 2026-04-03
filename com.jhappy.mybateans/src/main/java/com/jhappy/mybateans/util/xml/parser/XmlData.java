@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package com.jhappy.mybateans.indexing;
+package com.jhappy.mybateans.util.xml.parser;
 
 import java.io.IOException;
 import java.util.ArrayDeque;
@@ -40,19 +40,40 @@ import org.netbeans.api.lexer.Token;
 
 public class XmlData {
 
-    public final String tagName;
-    public final Map<String, AttributeData> attributes = new HashMap<>();
-    public final List<XmlData> children = new ArrayList<>();
+    /**
+     * @return the tagName
+     */
+    public String getTagName() {
+        return tagName;
+    }
 
-    public XmlData(String tagName) {
+    /**
+     * @return the attributes
+     */
+    public Map<String, AttributeData> getAttributes() {
+        return attributes;
+    }
+
+    /**
+     * @return the children
+     */
+    public List<XmlData> getChildren() {
+        return children;
+    }
+
+    private final String tagName;
+    private final Map<String, AttributeData> attributes = new HashMap<>();
+    private final List<XmlData> children = new ArrayList<>();
+
+    XmlData(String tagName) {
         this.tagName = tagName;
     }
 
     /**
      */
-    public List<XmlData> select(String path) {
-        String[] parts = path.split(">");
-        return findRecursive(this, parts, 0);
+    public List<XmlData> select(String... path) {
+
+        return findRecursive(this, path, 0);
     }
 
     private List<XmlData> findRecursive(XmlData current, String[] parts, int index) {
@@ -61,8 +82,8 @@ public class XmlData {
         }
 
         String target = parts[index];
-        List<XmlData> matches = current.children.stream()
-                .filter(t -> t.tagName.equals(target))
+        List<XmlData> matches = current.getChildren().stream()
+                .filter(t -> t.getTagName().equals(target))
                 .collect(Collectors.toList());
 
         if (index == parts.length - 1) {
@@ -77,7 +98,10 @@ public class XmlData {
     }
 
     public static XmlData parseFullXml(FileObject fo) {
+     
+        
         try {
+        
             String text = fo.asText();
             TokenHierarchy<String> th = TokenHierarchy.create(text, XMLTokenId.language());
             TokenSequence<XMLTokenId> ts = th.tokenSequence(XMLTokenId.language());
@@ -91,34 +115,45 @@ public class XmlData {
             stack.push(root);
 
             while (ts.moveNext()) {
+
                 Token<XMLTokenId> token = ts.token();
+
                 XMLTokenId id = token.id();
 
                 if (id == XMLTokenId.TAG) {
+                    
                     String tagText = token.text().toString();
 
+                    
                     if (tagText.startsWith("</")) {
+                        
                         if (stack.size() > 1) {
                             stack.pop();
                         }
+                        
                     } else if (tagText.startsWith("<")) {
+                        
                         String tagName = tagText.substring(1).trim();
+                        
                         XmlData newTag = new XmlData(tagName);
 
-                        stack.peek().children.add(newTag);
+                        stack.peek().getChildren().add(newTag);
 
-                        boolean isSelfClosing = false;
+                        //tagの開始位置を一旦記録
                         int lookaheadOffset = ts.offset();
+
                         while (ts.moveNext()) {
+
                             Token<XMLTokenId> nextTok = ts.token();
+
                             if (nextTok.id() == XMLTokenId.TAG) {
+
                                 String nextText = nextTok.text().toString();
+
                                 if (nextText.contains("/>")) {
-                                    isSelfClosing = true;
                                     break;
                                 }
                                 if (nextText.contains(">")) {
-                                    isSelfClosing = false;
                                     break;
                                 }
                             }
@@ -127,8 +162,11 @@ public class XmlData {
                         stack.push(newTag);
 
                         ts.move(lookaheadOffset);
+                        
                         ts.moveNext();
+                        
                     } else if (tagText.contains(">")) {
+                        
                         if (tagText.contains("/>")) {
                             if (stack.size() > 1) {
                                 stack.pop();
@@ -138,18 +176,24 @@ public class XmlData {
                 }
 
                 if (id == XMLTokenId.ARGUMENT) {
+                    
                     String attrName = token.text().toString();
+                    
                     int nameOff = ts.offset();
 
                     while (ts.moveNext() && ts.token().id() != XMLTokenId.VALUE) {
                     }
 
                     Token<XMLTokenId> valToken = ts.token();
+                    
                     if (valToken != null && valToken.id() == XMLTokenId.VALUE) {
+                     
                         String fullVal = valToken.text().toString();
+                        
                         if (fullVal.length() >= 2) {
                             String pureValue = fullVal.substring(1, fullVal.length() - 1);
-                            stack.peek().attributes.put(attrName,
+                            
+                            stack.peek().getAttributes().put(attrName,
                                     new AttributeData(attrName, nameOff, pureValue, ts.offset() + 1));
                         }
                     }

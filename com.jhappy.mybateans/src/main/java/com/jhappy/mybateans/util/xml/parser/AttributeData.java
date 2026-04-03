@@ -1,4 +1,4 @@
-package com.jhappy.mybateans.indexing;
+package com.jhappy.mybateans.util.xml.parser;
 
 /**
  *
@@ -39,7 +39,7 @@ public class AttributeData {
     private String value;
     private int valueoffset;
 
-    AttributeData(String name, int nameoffset, String value, int valueoffset) {
+    public AttributeData(String name, int nameoffset, String value, int valueoffset) {
         this.name = name;
         this.value = value;
         this.nameoffset = nameoffset;

@@ -1,6 +1,7 @@
 package com.jhappy.mybateans.hyperlink;
 
 import com.jhappy.mybateans.indexing.MyBatisIndexerFactory;
+import com.jhappy.mybateans.indexing.MyBatisIndexer;
 import com.jhappy.mybateans.util.NbUtil;
 import com.sun.source.util.TreePath;
 import java.io.IOException;
@@ -26,11 +27,10 @@ import org.openide.text.Line;
 import org.openide.text.NbDocument;
 import org.openide.util.Exceptions;
 
-
 @MimeRegistration(
-    mimeType = "text/x-java",
-    service = HyperlinkProviderExt.class,
-    position = 10
+        mimeType = "text/x-java",
+        service = HyperlinkProviderExt.class,
+        position = 10
 )
 public class MyBatisMapperHyperlinkProvider implements HyperlinkProviderExt {
 
@@ -161,7 +161,7 @@ public class MyBatisMapperHyperlinkProvider implements HyperlinkProviderExt {
 
         QuerySupport querySupport = QuerySupport.forRoots(MyBatisIndexerFactory.INDEXER_NAME, MyBatisIndexerFactory.version, roots.toArray(new FileObject[0]));
 
-        Collection<? extends IndexResult> results = querySupport.query("mapper_namespace", namespace, QuerySupport.Kind.EXACT);
+        Collection<? extends IndexResult> results = querySupport.query(MyBatisIndexer.INDEX_KEY_MAPPER_NAMESPACE, namespace, QuerySupport.Kind.EXACT);
 
         for (IndexResult result : results) {
 
@@ -170,15 +170,17 @@ public class MyBatisMapperHyperlinkProvider implements HyperlinkProviderExt {
                 FileObject xmlFile = result.getFile();
 
                 if (xmlFile != null) {
-                    return new TargetLocation(xmlFile, 0);
+                    String namespaceOffsetStr = result.getValue(MyBatisIndexer.INDEX_KEY_MAPPER_NAMESPACE_OFFSET);
+                    int namespaceOffset = (namespaceOffsetStr != null) ? Integer.parseInt(namespaceOffsetStr) : -1;
+                    return new TargetLocation(xmlFile, namespaceOffset);
                 }
             } else {
 
-                String[] ids = result.getValues("mapper_id");
+                String[] ids = result.getValues(MyBatisIndexer.INDEX_KEY_MAPPER_ID);
                 for (String currentId : ids) {
                     if (id.equals(currentId)) {
 
-                        String offsetStr = result.getValue("id_pos_" + id);
+                        String offsetStr = result.getValue(MyBatisIndexer.INDEX_KEY_MAPPER_ID_OFFSET);
                         int offset = (offsetStr != null) ? Integer.parseInt(offsetStr) : -1;
 
                         FileObject xmlFile = result.getFile();
