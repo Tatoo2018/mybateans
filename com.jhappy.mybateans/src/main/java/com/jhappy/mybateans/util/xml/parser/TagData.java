@@ -5,6 +5,15 @@ import java.util.Map;
 
 public class TagData {
 
+    private final String tagName;
+    
+    private Map<String, AttributeData> attributes = new HashMap<>();
+
+    public TagData(String tagName) {
+        this.tagName = tagName;
+    }
+    
+    
     /**
      * @return the tagName
      */
@@ -26,11 +35,4 @@ public class TagData {
         this.attributes = attributes;
     }
     
-    private final String tagName;
-    
-    private Map<String, AttributeData> attributes = new HashMap<>();
-
-    public TagData(String tagName) {
-        this.tagName = tagName;
-    }
 }

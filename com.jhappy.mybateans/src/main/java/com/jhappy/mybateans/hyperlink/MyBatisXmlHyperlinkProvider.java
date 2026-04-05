@@ -51,7 +51,6 @@ import org.openide.util.Exceptions;
 )
 public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
 
-    //Properties available for class FQN names or aliases
     private static final Set<String> TYPE_REF_ATTRS = Set.of(
             "resultType",
             "parameterType",
@@ -67,44 +66,28 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
 
     @Override
     public boolean isHyperlinkPoint(Document doc, int offset, HyperlinkType type) {
+        
         AttributeInfo attr = getAttributeAt(doc, offset);
         if (attr == null) {
             return false;
         }
 
         return "namespace".equals(attr.attrName)
-                || ("id".equals(attr.attrName)&& !"sql".equals(attr.tabName)) 
+                || ("id".equals(attr.attrName) && !"sql".equals(attr.tabName))
                 || TYPE_REF_ATTRS.contains(attr.attrName)
                 || ("package".equals(attr.tabName) && "name".equals(attr.attrName));
     }
 
     @Override
     public int[] getHyperlinkSpan(Document doc, int offset, HyperlinkType type) {
+
         AttributeInfo attr = getAttributeAt(doc, offset);
 
         if (attr == null) {
             return null;
         }
 
-        //
-        TokenHierarchy<?> th = TokenHierarchy.get(doc);
-        TokenSequence<XMLTokenId> ts = th.tokenSequence(XMLTokenId.language());
-
-        ts.move(offset);
-
-        if (!ts.moveNext() && !ts.movePrevious()) {
-            return null;
-        }
-
-        Token<XMLTokenId> token = ts.token();
-
-        if (token.id() == XMLTokenId.VALUE) {
-            int start = ts.offset();
-            int end = start + token.length();
-            return new int[]{start, end};
-        }
-
-        return null;
+        return new int[]{attr.attrValueOffset,attr.attrValueOffset+attr.attrValue.length()};
     }
 
     @Override
@@ -134,7 +117,7 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
             String alias = attr.attrValue;
 
             jumpByClassOrAlias(project, alias, xmlfile, doc);
-            
+
         } else if ("name".equals(attr.attrName) && "package".equals(attr.tabName)) {
 
             String packagename = attr.attrValue;
@@ -183,7 +166,7 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
         }
 
         jumpToClass(alias, doc);
-    
+
     }
 
     private static String resolveFromPackages(FileObject xmlfile, String simpleName) {
@@ -317,6 +300,12 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
         return packages;
     }
 
+    /**
+     * 
+     * @param doc
+     * @param offset
+     * @return 
+     */
     private AttributeInfo getAttributeAt(Document doc, int offset) {
         
         final AttributeInfo[] result = new AttributeInfo[1];
@@ -343,12 +332,19 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
                 return;
             }
 
-            String value = token.text().toString();
-            if (value.length() >= 2) {
-                value = value.substring(1, value.length() - 1);
+            // 属性値の情報の取得
+            String rawValue = token.text().toString();
+            int valueOffset = ts.offset(); // 属性値（クォート含む）の開始位置
+
+            int cleanValueOffset = valueOffset;
+            String cleanValue = rawValue;
+            if (rawValue.length() >= 2 && (rawValue.startsWith("\"") || rawValue.startsWith("'"))) {
+                cleanValue = rawValue.substring(1, rawValue.length() - 1);
+                cleanValueOffset = valueOffset + 1;
             }
 
             String attrName = null;
+            int attrNameOffset = -1;
             String tagName = null;
 
             // 1. 属性名 (ARGUMENT) を求めて遡る
@@ -356,7 +352,12 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
                 Token<XMLTokenId> t = ts.token();
                 if (t.id() == XMLTokenId.ARGUMENT) {
                     attrName = t.text().toString();
-                    break; // 属性名が見つかったらタグ名探しへ
+                    attrNameOffset = ts.offset(); // 属性名の開始位置
+                    break;
+                }
+                // タグの開始まで戻ってしまったら中断
+                if (t.id() == XMLTokenId.TAG && t.text().toString().startsWith("<")) {
+                    break;
                 }
             }
 
@@ -364,9 +365,7 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
             if (attrName != null) {
                 while (ts.movePrevious()) {
                     Token<XMLTokenId> t = ts.token();
-                    // 開始タグ (<select, <mapper など) を探す
                     if (t.id() == XMLTokenId.TAG && t.text().toString().startsWith("<")) {
-                        // "<" を除いた純粋なタグ名を取得
                         tagName = t.text().toString().substring(1).trim();
                         break;
                     }
@@ -374,8 +373,7 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
             }
 
             if (tagName != null && attrName != null) {
-                // タグ名、属性名、値をセットで返す
-                result[0] = new AttributeInfo(tagName, attrName, value);
+                result[0] = new AttributeInfo(tagName, attrName, attrNameOffset, cleanValue, cleanValueOffset);
             }
         });
 
@@ -503,13 +501,17 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
     private static class AttributeInfo {
 
         final String attrName;
+        final int attrNameOffset;
         final String attrValue;
+        final int attrValueOffset;
         final String tabName;
 
-        AttributeInfo(String tabName, String attrName, String attrValue) {
+        AttributeInfo(String tabName, String attrName, int attrNameOffset, String attrValue, int attrValueOffset) {
             this.tabName = tabName;
             this.attrName = attrName;
             this.attrValue = attrValue;
+            this.attrNameOffset = attrNameOffset;
+            this.attrValueOffset = attrValueOffset;
         }
     }
 
@@ -578,7 +580,7 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
                 org.openide.cookies.OpenCookie oc = dobj.getLookup().lookup(org.openide.cookies.OpenCookie.class);
 
                 if (oc != null) {
-                    oc.open(); 
+                    oc.open();
                 } else {
                     org.openide.cookies.EditCookie ec = dobj.getLookup().lookup(org.openide.cookies.EditCookie.class);
                     if (ec != null) {

@@ -1,7 +1,7 @@
 package com.jhappy.mybateans.validators;
 
 import com.jhappy.mybateans.util.xml.parser.AttributeData;
-import com.jhappy.mybateans.indexing.MyBatisData;
+import com.jhappy.mybateans.indexing.MyBatisMapperData;
 import com.jhappy.mybateans.indexing.MyBatisIndexer;
 import com.jhappy.mybateans.util.xml.parser.XmlData;
 import java.util.ArrayList;
@@ -66,7 +66,7 @@ public class MyBatisParser extends Parser {
                 int mapperNamespaceOffset = (mapperNamespaceOffsetStr != null) ? Integer.parseInt(mapperNamespaceOffsetStr) : -1;
                 List<XmlData> sqlTagList = MyBatisIndexer.getSqlTagData(mapperRoot);
 
-                MyBatisData mybatisData = new MyBatisData(mapperNamespace, mapperNamespaceOffset, sqlTagList);
+                MyBatisMapperData mybatisData = new MyBatisMapperData(mapperNamespace, mapperNamespaceOffset, sqlTagList);
 
                 lastResult = new MyBatisMapperXmlParseResult(snapshot, mybatisData);
             }

@@ -12,6 +12,11 @@ public class TargetLocation {
     FileObject file;
     int offset;
 
+    /**
+     * 
+     * @param f
+     * @param o 
+     */
     TargetLocation(FileObject f, int o) {
         this.file = f;
         this.offset = o;

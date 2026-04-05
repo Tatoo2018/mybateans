@@ -125,7 +125,6 @@ public class MyBatisMapperHyperlinkProvider implements HyperlinkProviderExt {
 
                 if (ec != null) {
 
-                    //StyledDocument xmlDoc = ec.openDocument();
                     ec.open();
 
                     if (location.offset != -1) {

@@ -2,15 +2,18 @@ package com.jhappy.mybateans.validators;
 
 import com.jhappy.mybateans.hyperlink.MyBatisXmlHyperlinkProvider;
 import com.jhappy.mybateans.util.xml.parser.AttributeData;
-import com.jhappy.mybateans.indexing.MyBatisData;
+import com.jhappy.mybateans.indexing.MyBatisMapperData;
 import com.jhappy.mybateans.indexing.MyBatisIndexer;
 import com.jhappy.mybateans.util.xml.parser.TagData;
 import com.jhappy.mybateans.util.xml.parser.XmlData;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -30,7 +33,8 @@ import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 
 /**
- * 1つのクラスでパースとエラー表示を完結させるタスク
+ *
+ * @author th
  */
 public class MyBatisValidationTask extends ParserResultTask {
 
@@ -40,6 +44,14 @@ public class MyBatisValidationTask extends ParserResultTask {
             "date", "decimal", "bigdecimal", "biginteger", "object",
             "date[]", "decimal[]", "bigdecimal[]", "biginteger[]", "object[]",
             "map", "hashmap", "list", "arraylist", "collection", "iterator"
+    );
+
+    public static final Set<String> INCLUDE_JAVA_METHOD_ON_ID_TAG = Set.of(
+            "select", "insert", "delete", "update"
+    );
+
+    public static final Set<String> INCLUDE_ID_TAG = Set.of(
+            "select", "insert", "delete", "update", "sql", "resultMap"
     );
 
     @Override
@@ -57,91 +69,108 @@ public class MyBatisValidationTask extends ParserResultTask {
                 if (attr != null) {
                     String alias = attr.getValue();
                     int offset = attr.getValueoffset();
-                    boolean exists = MyBatisIndexer.existsJavaType(fo, alias);
-                    if (!exists) {
-                        ErrorDescription error = addError(alias,
-                                fo,
-                                offset);
-                        errors.add(error);
+                    if (!MyBatisIndexer.existsJavaType(fo, alias)) {
+                        String message = alias + " is not found as Alias or JavaType";
+                        errors.add(createError(alias, fo, offset, message));
                     }
                 }
-
             }
 
             for (AttributeData packagedata : mybatisConfigResult.getPackagelist()) {
                 if (packagedata != null) {
                     String packagename = packagedata.getValue();
                     int offset = packagedata.getValueoffset();
-
-                    boolean exists = MyBatisXmlHyperlinkProvider.isExistPackage(packagename, fo);
-                    if (!exists) {
-                        ErrorDescription error = addError(packagename,
-                                fo,
-                                offset);
-                        errors.add(error);
+                    if (!MyBatisXmlHyperlinkProvider.isExistPackage(packagename, fo)) {
+                        String message = "this package is not found";
+                        errors.add(createError(packagename, fo, offset, message));
                     }
                 }
-
             }
 
-        } else if (result instanceof MyBatisMapperXmlParseResult mybatisdata) {
+        } else if (result instanceof MyBatisMapperXmlParseResult mapperXmlParseResult) {
 
-            MyBatisData mybatismapperdata = mybatisdata.getMyBatisData();
-            if (mybatismapperdata == null) {
+            MyBatisMapperData mapperData = mapperXmlParseResult.getMyBatisData();
+
+            if (mapperData == null) {
                 return;
             }
 
-            String namespace = mybatismapperdata.getNamespace();
-            int offset = mybatismapperdata.getNamespaceOffset();
+            String namespace = mapperData.getNamespace();
 
             if (namespace != null) {
-                boolean exists = MyBatisIndexer.existsJavaType(fo, namespace);
-                if (!exists) {
-                    ErrorDescription error = addError(namespace,
-                            fo,
-                            offset);
-                    errors.add(error);
-                }
 
-                if (exists) {
+                if (!MyBatisIndexer.existsJavaType(fo, namespace)) {
+
+                    int offset = mapperData.getNamespaceOffset();
+                    errors.add(createError(namespace, fo, offset, "not found"));
+
+                } else {
 
                     Set<String> javaMethods = getJavaMethods(fo, namespace);
-                    for (XmlData tagData : mybatismapperdata.getTags()) {
+                    Map<String, AttributeData> ids = new HashMap<>();
+                    Set<String> duplicatedIds = new HashSet<>();
 
-                        AttributeData idAttr = tagData.getAttributes().get("id");
-                        if (idAttr != null) {
-                            String methodName = idAttr.getValue();
-                            if (!javaMethods.contains(methodName)) {
+                    for (XmlData tagData : mapperData.getTags()) {
 
-                                ErrorDescription error = addError(methodName, fo, idAttr.getValueoffset());
-                                errors.add(error);
+                        String tagName = tagData.getTagName();
+
+                        for (String attrName : List.of("resultType", "parameterType", "type")) {
+
+                            AttributeData attr = tagData.getAttributes().get(attrName);
+
+                            if (attr != null) {
+                                String value = attr.getValue();
+                                if (isInvalidAlias(value, fo)) {
+                                    String message = value + " is not found as Alias or JavaType";
+                                    errors.add(createError(value, fo, attr.getValueoffset(), message));
+                                }
+
+                            }
+                        }
+
+                        if (INCLUDE_JAVA_METHOD_ON_ID_TAG.contains(tagName)) {
+
+                            AttributeData idAttr = tagData.getAttributes().get("id");
+
+                            if (idAttr != null) {
+
+                                String methodName = idAttr.getValue();
+
+                                if (!javaMethods.contains(methodName)) {
+                                    String message = namespace + "." + methodName + " is not found on class";
+                                    errors.add(createError(methodName, fo, idAttr.getValueoffset(), message));
+
+                                }
+
+                            }
+                        }
+                        if (INCLUDE_ID_TAG.contains(tagName)) {
+
+                            AttributeData idAttr = tagData.getAttributes().get("id");
+                            if (idAttr != null) {
+
+                                String id = idAttr.getValue();
+
+                                if (ids.keySet().contains(id)) {
+
+                                    String message = "id is dupulicated";
+                                    errors.add(createError(id, fo, idAttr.getValueoffset(), message));
+
+                                    if (!duplicatedIds.contains(id)) {
+                                        AttributeData reportedAttr = ids.get(id);
+                                        errors.add(createError(reportedAttr.getValue(), fo, reportedAttr.getValueoffset(), message));
+                                    }
+
+                                    duplicatedIds.add(id);
+
+                                } else {
+                                    ids.put(id, idAttr);
+                                }
 
                             }
 
                         }
 
-                    }
-
-                }
-            }
-
-            List<XmlData> idDatas = mybatismapperdata.getTags();
-
-            for (XmlData tagData : idDatas) {
-
-                AttributeData attrData = tagData.getAttributes().get("resultType");
-                if (attrData != null) {
-
-                    String resultType = attrData.getValue();
-
-                    if (!DEFAULT_ALIASES.contains(resultType.toLowerCase(Locale.ROOT))) {
-
-                        boolean exists = MyBatisXmlHyperlinkProvider.validateAlias(fo, resultType);
-
-                        if (!exists) {
-                            ErrorDescription error = addError(resultType, fo, attrData.getValueoffset());
-                            errors.add(error);
-                        }
                     }
 
                 }
@@ -157,13 +186,30 @@ public class MyBatisValidationTask extends ParserResultTask {
      *
      * @param value
      * @param fo
+     * @return
+     */
+    private boolean isInvalidAlias(String value, FileObject fo) {
+
+        if (DEFAULT_ALIASES.contains(value.toLowerCase(Locale.ROOT))) {
+            return false;
+        }
+
+        boolean exists = MyBatisXmlHyperlinkProvider.validateAlias(fo, value);
+
+        return !exists;
+    }
+
+    /**
+     *
+     * @param value
+     * @param fo
      * @param offset
      * @return
      */
-    public ErrorDescription addError(String value, FileObject fo, int offset) {
+    private static ErrorDescription createError(String value, FileObject fo, int offset, String message) {
         ErrorDescription error = ErrorDescriptionFactory.createErrorDescription(
                 Severity.ERROR,
-                value + " not found.",
+                message,
                 fo,
                 offset,
                 offset + value.length()
@@ -186,11 +232,14 @@ public class MyBatisValidationTask extends ParserResultTask {
     }
 
     /**
-     * Java インターフェースからメソッド名の集合を取得する
+     *
      */
     private Set<String> getJavaMethods(FileObject fo, String fqn) {
+
         final Set<String> methods = new HashSet<>();
+
         JavaSource js = MyBatisIndexer.getJavaSource(fo, fqn);
+
         if (js == null) {
             return methods;
         }

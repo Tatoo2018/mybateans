@@ -38,7 +38,7 @@ import org.openide.loaders.DataObject;
 public class MyBatisIndexer extends CustomIndexer {
 
     private static final Set<String> SQL_TAGS = new HashSet<>(
-            Arrays.asList("select", "insert", "update", "delete")
+            Arrays.asList("select", "insert", "update", "delete","resultMap","sql")
     );
 
     public static final String INDEX_KEY_MAPPER_ID = "mapper_id";
@@ -154,6 +154,11 @@ public class MyBatisIndexer extends CustomIndexer {
         }
     }
 
+    /**
+     * 
+     * @param mapperRoot
+     * @return 
+     */
     public static List<XmlData> getSqlTagData(XmlData mapperRoot) {
         List<XmlData> sqlNodes = new ArrayList<>();
         for (String tagName : SQL_TAGS) {
@@ -162,11 +167,17 @@ public class MyBatisIndexer extends CustomIndexer {
         return sqlNodes;
     }
 
+    /**
+     * 
+     * @param mapperRoot
+     * @return 
+     */
     public static Map<String, String> getMapperTagData(XmlData mapperRoot) {
 
         Map<String, String> headerData = new HashMap<>();
 
         List<XmlData> nsAttr = mapperRoot.select("mapper");
+        
         if (!nsAttr.isEmpty()) {
 
             XmlData data = nsAttr.get(0);
@@ -187,6 +198,14 @@ public class MyBatisIndexer extends CustomIndexer {
         return null;
     }
 
+    /**
+     * 
+     * @param packageList
+     * @param support
+     * @param indexable
+     * @param confs
+     * @param headerData 
+     */
     public void saveIndex(List<XmlData> packageList, IndexingSupport support, Indexable indexable, List<String[]> confs, Map<String, String> headerData) {
         for (XmlData data : packageList) {
 
@@ -253,7 +272,12 @@ public class MyBatisIndexer extends CustomIndexer {
         return false;
     }
 
-    public static MyBatisData parseMyBatisConfigXml(FileObject fo) {
+    /**
+     * 
+     * @param fo
+     * @return 
+     */
+    public static MyBatisMapperData parseMyBatisConfigXml(FileObject fo) {
 
         try {
             String text = fo.asText();
@@ -277,6 +301,11 @@ public class MyBatisIndexer extends CustomIndexer {
 
     }
 
+    /**
+     * 
+     * @param fo
+     * @return 
+     */
     public static boolean isMapperXml(FileObject fo) {
         try {
             return hasRootElement(fo, "mapper");
@@ -286,6 +315,11 @@ public class MyBatisIndexer extends CustomIndexer {
         return false;
     }
 
+    /**
+     * 
+     * @param fo
+     * @return 
+     */
     public static boolean isConfigXml(FileObject fo) {
         try {
             return hasRootElement(fo, "configuration");
@@ -295,10 +329,23 @@ public class MyBatisIndexer extends CustomIndexer {
         return false;
     }
 
+    /**
+     * 
+     * @param fo
+     * @return
+     * @throws Exception 
+     */
     public static boolean isSpringConfigXml(FileObject fo) throws Exception {
         return hasRootElement(fo, "beans");
     }
 
+    /**
+     * 
+     * @param fo
+     * @param expectedRoot
+     * @return
+     * @throws Exception 
+     */
     private static boolean hasRootElement(FileObject fo, String expectedRoot) throws Exception {
         if (!"xml".equals(fo.getExt())) {
             return false;
@@ -320,6 +367,11 @@ public class MyBatisIndexer extends CustomIndexer {
         return false;
     }
 
+    /**
+     * 
+     * @param fo
+     * @return 
+     */
     public static String getContentType(FileObject fo) {
         if (!"xml".equals(fo.getExt())) {
             return null;
@@ -354,14 +406,11 @@ public class MyBatisIndexer extends CustomIndexer {
             return null;
         }
 
-        // 1. プロジェクトのソースパスを取得
         ClassPath cp = ClassPath.getClassPath(fo, ClassPath.SOURCE);
         if (cp == null) {
             return null;
         }
 
-        // 2. FQN をファイルパス形式に変換して、実際のファイル（FileObject）を探す
-        // 例: com.jhappy.Test -> com/jhappy/Test.java
         String resourcePath = fqn.replace('.', '/') + ".java";
         FileObject javaFile = cp.findResource(resourcePath);
 

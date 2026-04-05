@@ -34,10 +34,10 @@ public class AttributeData {
         return valueoffset;
     }
 
-    private String name;
-    private int nameoffset;
-    private String value;
-    private int valueoffset;
+    private final String name;
+    private final int nameoffset;
+    private final String value;
+    private final int valueoffset;
 
     public AttributeData(String name, int nameoffset, String value, int valueoffset) {
         this.name = name;

@@ -38,7 +38,19 @@ import org.netbeans.api.xml.lexer.XMLTokenId;
 import org.openide.filesystems.FileObject;
 import org.netbeans.api.lexer.Token;
 
+/**
+ *
+ * @author th
+ */
 public class XmlData {
+
+    private final String tagName;
+    private final Map<String, AttributeData> attributes = new HashMap<>();
+    private final List<XmlData> children = new ArrayList<>();
+
+    XmlData(String tagName) {
+        this.tagName = tagName;
+    }
 
     /**
      * @return the tagName
@@ -59,14 +71,6 @@ public class XmlData {
      */
     public List<XmlData> getChildren() {
         return children;
-    }
-
-    private final String tagName;
-    private final Map<String, AttributeData> attributes = new HashMap<>();
-    private final List<XmlData> children = new ArrayList<>();
-
-    XmlData(String tagName) {
-        this.tagName = tagName;
     }
 
     /**
@@ -98,10 +102,9 @@ public class XmlData {
     }
 
     public static XmlData parseFullXml(FileObject fo) {
-     
-        
+
         try {
-        
+
             String text = fo.asText();
             TokenHierarchy<String> th = TokenHierarchy.create(text, XMLTokenId.language());
             TokenSequence<XMLTokenId> ts = th.tokenSequence(XMLTokenId.language());
@@ -121,20 +124,19 @@ public class XmlData {
                 XMLTokenId id = token.id();
 
                 if (id == XMLTokenId.TAG) {
-                    
+
                     String tagText = token.text().toString();
 
-                    
                     if (tagText.startsWith("</")) {
-                        
+
                         if (stack.size() > 1) {
                             stack.pop();
                         }
-                        
+
                     } else if (tagText.startsWith("<")) {
-                        
+
                         String tagName = tagText.substring(1).trim();
-                        
+
                         XmlData newTag = new XmlData(tagName);
 
                         stack.peek().getChildren().add(newTag);
@@ -162,11 +164,11 @@ public class XmlData {
                         stack.push(newTag);
 
                         ts.move(lookaheadOffset);
-                        
+
                         ts.moveNext();
-                        
+
                     } else if (tagText.contains(">")) {
-                        
+
                         if (tagText.contains("/>")) {
                             if (stack.size() > 1) {
                                 stack.pop();
@@ -176,23 +178,23 @@ public class XmlData {
                 }
 
                 if (id == XMLTokenId.ARGUMENT) {
-                    
+
                     String attrName = token.text().toString();
-                    
+
                     int nameOff = ts.offset();
 
                     while (ts.moveNext() && ts.token().id() != XMLTokenId.VALUE) {
                     }
 
                     Token<XMLTokenId> valToken = ts.token();
-                    
+
                     if (valToken != null && valToken.id() == XMLTokenId.VALUE) {
-                     
+
                         String fullVal = valToken.text().toString();
-                        
+
                         if (fullVal.length() >= 2) {
                             String pureValue = fullVal.substring(1, fullVal.length() - 1);
-                            
+
                             stack.peek().getAttributes().put(attrName,
                                     new AttributeData(attrName, nameOff, pureValue, ts.offset() + 1));
                         }
