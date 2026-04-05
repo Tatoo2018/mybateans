@@ -27,7 +27,6 @@ public class MyBatisParser extends Parser {
         List<AttributeData> typeAliases = new ArrayList<>();
 
         if (MyBatisIndexer.isConfigXml(fo)) {
-            
             XmlData xmldata = XmlData.parseFullXml(fo);
 
             List<XmlData> packageList = xmldata.select("configuration", "typeAliases", "package");
@@ -85,10 +84,12 @@ public class MyBatisParser extends Parser {
     @Override
     public void addChangeListener(ChangeListener cl) {
 
+        System.out.println("called parse addChangeListener");
     }
 
     @Override
     public void removeChangeListener(ChangeListener cl) {
+        System.out.println("called parse removeChangeListener");
     }
 
 }

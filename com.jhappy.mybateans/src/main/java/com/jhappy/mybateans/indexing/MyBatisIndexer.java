@@ -88,6 +88,7 @@ public class MyBatisIndexer extends CustomIndexer {
                             DataObject dobj = DataObject.find(fo);
                             EditorCookie ec = dobj.getLookup().lookup(EditorCookie.class);
 
+                            // エディタが開いていればそのDocument、閉じていれば仮想的なDocumentをロード
                             Document doc = ec.openDocument();
 
                             String namespace = headerData.get("mapper_namespace");
@@ -95,9 +96,7 @@ public class MyBatisIndexer extends CustomIndexer {
                             int namespaceOffset = (mapperNamespaceOffsetStr != null) ? Integer.parseInt(mapperNamespaceOffsetStr) : -1;
 
                             if (!existsJavaType(fo, namespace)) {
-                                
                                 List<ErrorDescription> errors = new ArrayList<>();
-                                
                                 errors.add(ErrorDescriptionFactory.createErrorDescription(
                                         Severity.ERROR,
                                         "Namespace '" + namespace + "' not found.",
@@ -241,6 +240,7 @@ public class MyBatisIndexer extends CustomIndexer {
                 return true;
             }
 
+            // classも見る（compile後）
             org.netbeans.api.java.classpath.ClassPath compileCp
                     = org.netbeans.api.java.classpath.ClassPath.getClassPath(fo, org.netbeans.api.java.classpath.ClassPath.COMPILE);
 
@@ -250,7 +250,7 @@ public class MyBatisIndexer extends CustomIndexer {
             }
 
         } catch (Exception e) {
-             Exceptions.printStackTrace(e);
+            // 無視
         }
         return false;
     }
@@ -339,7 +339,7 @@ public class MyBatisIndexer extends CustomIndexer {
             }
 
         } catch (Exception e) {
-            Exceptions.printStackTrace(e);
+            // 無視して続行
         }
         return null;
     }

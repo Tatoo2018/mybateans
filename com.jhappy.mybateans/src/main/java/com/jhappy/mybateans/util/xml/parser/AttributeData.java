@@ -5,14 +5,6 @@ package com.jhappy.mybateans.util.xml.parser;
  * @author th
  */
 public class AttributeData {
-    
-    private String name;
-    
-    private int nameoffset;
-    
-    private String value;
-    
-    private int valueoffset;
 
     /**
      * @return the name
@@ -42,6 +34,10 @@ public class AttributeData {
         return valueoffset;
     }
 
+    private String name;
+    private int nameoffset;
+    private String value;
+    private int valueoffset;
 
     public AttributeData(String name, int nameoffset, String value, int valueoffset) {
         this.name = name;
