@@ -11,6 +11,10 @@ import org.netbeans.modules.parsing.spi.Parser;
  * XML の解析結果（namespace とその位置）を保持するクラス
  */
 public class MyBatisConfigXmlParserResult extends Parser.Result {
+    
+    private List<AttributeData> packagelist = new ArrayList<>();
+    
+    private List<AttributeData> typeAliases = new ArrayList<>();
 
     /**
      * @return the packagelist
@@ -26,8 +30,6 @@ public class MyBatisConfigXmlParserResult extends Parser.Result {
         return typeAliases;
     }
 
-    private List<AttributeData> packagelist = new ArrayList<>();
-    private List<AttributeData> typeAliases = new ArrayList<>();
 
     public MyBatisConfigXmlParserResult(Snapshot snapshot, List<AttributeData> packagelist, List<AttributeData> typeAliases) {
         super(snapshot);

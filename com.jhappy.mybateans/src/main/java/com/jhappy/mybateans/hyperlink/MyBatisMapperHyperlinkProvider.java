@@ -36,7 +36,6 @@ public class MyBatisMapperHyperlinkProvider implements HyperlinkProviderExt {
 
     private String targetNamespace;
     private String targetId;
-    private int targetOffset = -1;
 
     @Override
     public boolean isHyperlinkPoint(Document doc, int offset, HyperlinkType ht) {

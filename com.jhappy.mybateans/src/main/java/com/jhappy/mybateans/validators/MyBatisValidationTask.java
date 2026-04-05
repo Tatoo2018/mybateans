@@ -8,8 +8,10 @@ import com.jhappy.mybateans.util.xml.parser.TagData;
 import com.jhappy.mybateans.util.xml.parser.XmlData;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
@@ -32,6 +34,14 @@ import org.openide.util.Exceptions;
  * 1つのクラスでパースとエラー表示を完結させるタスク
  */
 public class MyBatisValidationTask extends ParserResultTask {
+
+    public static final Set<String> DEFAULT_ALIASES = Set.of(
+            "_byte", "_char", "_character", "_long", "_short", "_int", "_integer", "_double", "_float", "_boolean",
+            "string", "byte", "char", "character", "long", "short", "int", "integer", "double", "float", "boolean",
+            "date", "decimal", "bigdecimal", "biginteger", "object",
+            "date[]", "decimal[]", "bigdecimal[]", "biginteger[]", "object[]",
+            "map", "hashmap", "list", "arraylist", "collection", "iterator"
+    );
 
     @Override
     public void run(Parser.Result result, SchedulerEvent event) {
@@ -123,11 +133,17 @@ public class MyBatisValidationTask extends ParserResultTask {
                 AttributeData attrData = tagData.getAttributes().get("resultType");
                 if (attrData != null) {
 
-                    boolean exists = MyBatisXmlHyperlinkProvider.validateAlias(fo, attrData.getValue());
+                    String resultType = attrData.getValue();
 
-                    if (!exists) {
-                        ErrorDescription error = addError(attrData.getValue(), fo, attrData.getValueoffset());
-                        errors.add(error);
+                    //Since MyBatis is case-insensitive, both "string" and "String" are treated the same.
+                    if (!DEFAULT_ALIASES.contains(resultType.toLowerCase(Locale.ROOT))) {
+
+                        boolean exists = MyBatisXmlHyperlinkProvider.validateAlias(fo, attrData.getValue());
+
+                        if (!exists) {
+                            ErrorDescription error = addError(attrData.getValue(), fo, attrData.getValueoffset());
+                            errors.add(error);
+                        }
                     }
 
                 }
@@ -140,7 +156,6 @@ public class MyBatisValidationTask extends ParserResultTask {
     }
 
     /**
-     *
      * @param value
      * @param fo
      * @param offset
