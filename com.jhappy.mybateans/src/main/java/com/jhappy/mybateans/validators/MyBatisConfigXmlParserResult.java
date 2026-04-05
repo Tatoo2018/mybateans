@@ -1,7 +1,6 @@
 package com.jhappy.mybateans.validators;
 
 import com.jhappy.mybateans.util.xml.parser.AttributeData;
-import com.jhappy.mybateans.indexing.MyBatisData;
 import java.util.ArrayList;
 import java.util.List;
 import org.netbeans.modules.parsing.api.Snapshot;

@@ -1,5 +1,4 @@
 package com.jhappy.mybateans.indexing;
-import com.jhappy.mybateans.util.xml.parser.TagData;
 import com.jhappy.mybateans.util.xml.parser.XmlData;
 import java.util.List;
 

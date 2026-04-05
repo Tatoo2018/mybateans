@@ -1,7 +1,6 @@
 package com.jhappy.mybateans.indexing;
 
 import com.jhappy.mybateans.util.xml.parser.AttributeData;
-import com.jhappy.mybateans.util.xml.parser.TagData;
 import com.jhappy.mybateans.util.xml.parser.XmlData;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,7 +22,6 @@ import org.netbeans.modules.parsing.spi.indexing.Indexable;
 import org.netbeans.modules.parsing.spi.indexing.support.IndexDocument;
 import org.netbeans.modules.parsing.spi.indexing.support.IndexingSupport;
 import org.openide.util.Exceptions;
-import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenHierarchy;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.api.xml.lexer.XMLTokenId;
