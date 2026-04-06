@@ -22,11 +22,24 @@ jobs:
           java-version: 17
           cache: maven
 
+      - name: Build Sample Project with Maven
+        run: mvn -B clean package
+        working-directory: MyBatisSampleTemplateProject
+
+      - name: Zip Template Project and Copy to Resources
+        run: |
+          
+          # 
+          zip -r MyBatisSampleTemplateProject.zip MyBatisSampleTemplateProject/ -x "*/target/*" "*/.*"
+          
+          # 
+          mv MyBatisSampleTemplateProject.zip com.jhappy.mybateans/src/main/resources/com/jhappy/mybateans/template/
+
       - name: Build with Maven
         run: mvn -B clean package
         working-directory: com.jhappy.mybateans
 
-      # ② update site生成（重要）
+      #  update site生成（重要）
       - name: Generate Update Site
         run: mvn org.apache.netbeans.utilities:nbm-maven-plugin:14.4:autoupdate
         working-directory: com.jhappy.mybateans
