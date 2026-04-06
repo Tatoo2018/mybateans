@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.sample.mapper.TodoMapper">
+
+    <select id="findByTitle" resultType="Todo">
+        SELECT * FROM todos WHERE
+        1=1 
+        <if test="title != null">
+            AND title like '%' || #{title} || '%' 
+        </if>     
+        ORDER BY created_at DESC
+    </select>
+    
+    <select id="findById" resultType="Todo">
+        SELECT * FROM todos WHERE id = #{id}    
+    </select>
+
+    <select id="getMaxId" resultType="integer">
+        SELECT MAX(id) FROM todos
+    </select>
+    
+    <delete id="delete">
+        DELETE FROM todos WHERE  id = #{id}
+    </delete>
+
+    <insert id="insert" parameterType="Todo">
+        INSERT INTO todos (id, title, description, due_date)
+        VALUES (#{id}, #{title}, #{description}, #{dueDate,jdbcType=DATE})
+    </insert>
+    
+    <update id="update" parameterType="Todo">
+        UPDATE todos 
+        SET title = #{title} 
+        ,description = #{description} 
+        ,due_date = #{dueDate,jdbcType=DATE} 
+        ,is_completed = #{isCompleted} 
+        WHERE id = #{id}
+    </update>
+
+    <select id="checkTableExists" resultType="integer">
+        SELECT COUNT(*) 
+        FROM SYS.SYSTABLES 
+        WHERE TABLENAME = 'TODOS'
+    </select>
+</mapper>
