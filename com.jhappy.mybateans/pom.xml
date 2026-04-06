@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.jhappy</groupId>
     <artifactId>mybateans</artifactId>
-    <version>0.0.8-SNAPSHOT</version>
+    <version>0.0.9-SNAPSHOT</version>
     <packaging>nbm</packaging>
     <licenses>
         <license>
