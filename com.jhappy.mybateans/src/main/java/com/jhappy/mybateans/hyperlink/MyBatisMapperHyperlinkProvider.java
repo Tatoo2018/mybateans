@@ -148,18 +148,14 @@ public class MyBatisMapperHyperlinkProvider implements HyperlinkProviderExt {
      * @return
      * @throws IOException
      */
-    private TargetLocation findMapperLocation(FileObject javaFO, String namespace, String id) throws IOException {
+    public static TargetLocation findMapperLocation(FileObject javaFO, String namespace, String id) throws IOException {
 
         Project project = FileOwnerQuery.getOwner(javaFO);
         if (project == null) {
             return null;
         }
 
-        List<FileObject> roots = NbUtil.getRootsForSearch(project);
-
-        QuerySupport querySupport = QuerySupport.forRoots(MyBatisIndexerFactory.INDEXER_NAME, MyBatisIndexerFactory.version, roots.toArray(new FileObject[0]));
-
-        Collection<? extends IndexResult> results = querySupport.query(MyBatisIndexer.INDEX_KEY_MAPPER_NAMESPACE, namespace, QuerySupport.Kind.EXACT);
+        Collection<? extends IndexResult> results = findMapperData(project, namespace);
 
         for (IndexResult result : results) {
 
@@ -194,6 +190,24 @@ public class MyBatisMapperHyperlinkProvider implements HyperlinkProviderExt {
 
         }
         return null;
+    }
+
+    public static FileObject findMapperXmlFile(Project project, String namespace) throws IOException {
+        Collection<? extends IndexResult> results = findMapperData(project, namespace);
+
+        if (0 < results.size()) {
+            IndexResult[] result = new IndexResult[results.size()];
+            return results.toArray(result)[0].getFile();
+        }
+
+        return null;
+    }
+
+    private static Collection<? extends IndexResult> findMapperData(Project project, String namespace) throws IOException {
+        List<FileObject> roots = NbUtil.getRootsForSearch(project);
+        QuerySupport querySupport = QuerySupport.forRoots(MyBatisIndexerFactory.INDEXER_NAME, MyBatisIndexerFactory.version, roots.toArray(new FileObject[0]));
+        Collection<? extends IndexResult> results = querySupport.query(MyBatisIndexer.INDEX_KEY_MAPPER_NAMESPACE, namespace, QuerySupport.Kind.EXACT);
+        return results;
     }
 
     @Override
