@@ -1,9 +1,10 @@
 package com.jhappy.mybateans.hyperlink;
 
 import com.jhappy.mybateans.indexing.MyBatisIndexerFactory;
+import com.jhappy.mybateans.indexing.MyBatisIndexer;
+import com.jhappy.mybateans.util.NbUtil;
 import com.sun.source.util.TreePath;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
@@ -11,17 +12,10 @@ import java.util.Set;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.TypeElement;
 import javax.swing.text.Document;
-import javax.swing.text.StyledDocument;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
-import org.netbeans.api.java.project.JavaProjectConstants;
-import org.netbeans.api.java.source.CompilationController;
 import org.netbeans.api.java.source.JavaSource;
-import org.netbeans.api.java.source.Task;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectUtils;
-import org.netbeans.api.project.SourceGroup;
-import org.netbeans.api.project.Sources;
 import org.netbeans.lib.editor.hyperlink.spi.HyperlinkProviderExt;
 import org.netbeans.lib.editor.hyperlink.spi.HyperlinkType;
 import org.netbeans.modules.parsing.spi.indexing.support.IndexResult;
@@ -33,17 +27,15 @@ import org.openide.text.Line;
 import org.openide.text.NbDocument;
 import org.openide.util.Exceptions;
 
-
 @MimeRegistration(
-    mimeType = "text/x-java",
-    service = HyperlinkProviderExt.class,
-    position = 10
+        mimeType = "text/x-java",
+        service = HyperlinkProviderExt.class,
+        position = 10
 )
 public class MyBatisMapperHyperlinkProvider implements HyperlinkProviderExt {
 
     private String targetNamespace;
     private String targetId;
-    private int targetOffset = -1;
 
     @Override
     public boolean isHyperlinkPoint(Document doc, int offset, HyperlinkType ht) {
@@ -133,7 +125,6 @@ public class MyBatisMapperHyperlinkProvider implements HyperlinkProviderExt {
 
                 if (ec != null) {
 
-                    //StyledDocument xmlDoc = ec.openDocument();
                     ec.open();
 
                     if (location.offset != -1) {
@@ -157,35 +148,14 @@ public class MyBatisMapperHyperlinkProvider implements HyperlinkProviderExt {
      * @return
      * @throws IOException
      */
-    private TargetLocation findMapperLocation(FileObject javaFO, String namespace, String id) throws IOException {
+    public static TargetLocation findMapperLocation(FileObject javaFO, String namespace, String id) throws IOException {
 
         Project project = FileOwnerQuery.getOwner(javaFO);
         if (project == null) {
             return null;
         }
 
-        Sources sources = ProjectUtils.getSources(project);
-
-        List<FileObject> roots = new ArrayList<>();
-
-// Java
-        for (SourceGroup g : sources.getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA)) {
-            roots.add(g.getRootFolder());
-        }
-
-// Resources（Maven）
-        for (SourceGroup g : sources.getSourceGroups("resources")) {
-            roots.add(g.getRootFolder());
-        }
-
-// Generic（保険）
-        for (SourceGroup g : sources.getSourceGroups(Sources.TYPE_GENERIC)) {
-            roots.add(g.getRootFolder());
-        }
-
-        QuerySupport querySupport = QuerySupport.forRoots(MyBatisIndexerFactory.INDEXER_NAME, MyBatisIndexerFactory.version, roots.toArray(new FileObject[0]));
-
-        Collection<? extends IndexResult> results = querySupport.query("mapper_namespace", namespace, QuerySupport.Kind.EXACT);
+        Collection<? extends IndexResult> results = findMapperData(project, namespace);
 
         for (IndexResult result : results) {
 
@@ -194,15 +164,17 @@ public class MyBatisMapperHyperlinkProvider implements HyperlinkProviderExt {
                 FileObject xmlFile = result.getFile();
 
                 if (xmlFile != null) {
-                    return new TargetLocation(xmlFile, 0);
+                    String namespaceOffsetStr = result.getValue(MyBatisIndexer.INDEX_KEY_MAPPER_NAMESPACE_OFFSET);
+                    int namespaceOffset = (namespaceOffsetStr != null) ? Integer.parseInt(namespaceOffsetStr) : -1;
+                    return new TargetLocation(xmlFile, namespaceOffset);
                 }
             } else {
 
-                String[] ids = result.getValues("mapper_id");
+                String[] ids = result.getValues(MyBatisIndexer.INDEX_KEY_MAPPER_ID);
                 for (String currentId : ids) {
                     if (id.equals(currentId)) {
 
-                        String offsetStr = result.getValue("id_pos_" + id);
+                        String offsetStr = result.getValue(MyBatisIndexer.INDEX_KEY_MAPPER_ID_OFFSET);
                         int offset = (offsetStr != null) ? Integer.parseInt(offsetStr) : -1;
 
                         FileObject xmlFile = result.getFile();
@@ -218,6 +190,24 @@ public class MyBatisMapperHyperlinkProvider implements HyperlinkProviderExt {
 
         }
         return null;
+    }
+
+    public static FileObject findMapperXmlFile(Project project, String namespace) throws IOException {
+        Collection<? extends IndexResult> results = findMapperData(project, namespace);
+
+        if (0 < results.size()) {
+            IndexResult[] result = new IndexResult[results.size()];
+            return results.toArray(result)[0].getFile();
+        }
+
+        return null;
+    }
+
+    private static Collection<? extends IndexResult> findMapperData(Project project, String namespace) throws IOException {
+        List<FileObject> roots = NbUtil.getRootsForSearch(project);
+        QuerySupport querySupport = QuerySupport.forRoots(MyBatisIndexerFactory.INDEXER_NAME, MyBatisIndexerFactory.version, roots.toArray(new FileObject[0]));
+        Collection<? extends IndexResult> results = querySupport.query(MyBatisIndexer.INDEX_KEY_MAPPER_NAMESPACE, namespace, QuerySupport.Kind.EXACT);
+        return results;
     }
 
     @Override

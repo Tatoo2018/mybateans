@@ -2,12 +2,12 @@ package com.jhappy.mybateans.hyperlink;
 
 import com.jhappy.mybateans.indexing.MyBatisIndexer;
 import com.jhappy.mybateans.indexing.MyBatisIndexerFactory;
+import com.jhappy.mybateans.util.NbUtil;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 import javax.swing.text.Document;
 
@@ -21,26 +21,18 @@ import org.netbeans.lib.editor.hyperlink.spi.HyperlinkProviderExt;
 import org.netbeans.lib.editor.hyperlink.spi.HyperlinkType;
 
 import org.netbeans.api.java.source.JavaSource;
-import org.netbeans.api.java.source.Task;
-import org.netbeans.api.java.source.CompilationController;
-import org.netbeans.api.java.source.JavaSource.Phase;
 
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ExecutableElement;
-import javax.swing.text.StyledDocument;
-import org.netbeans.api.java.project.JavaProjectConstants;
 
 import org.netbeans.api.java.source.ClasspathInfo;
-import org.netbeans.modules.editor.NbEditorUtilities;
 
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.cookies.EditorCookie;
 import org.openide.text.Line;
 
-import org.netbeans.api.java.source.ElementHandle;
-import org.netbeans.api.java.source.SourceUtils;
 import org.netbeans.modules.editor.NbEditorUtilities;
 
 import org.netbeans.modules.parsing.spi.indexing.support.QuerySupport;
@@ -49,20 +41,16 @@ import org.netbeans.modules.parsing.spi.indexing.support.IndexResult;
 import org.netbeans.api.java.source.ui.ElementOpen;
 import org.netbeans.api.project.FileOwnerQuery;
 import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectUtils;
-import org.netbeans.api.project.SourceGroup;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.text.NbDocument;
 import org.openide.util.Exceptions;
 
-
 @MimeRegistration(
-    mimeType = "text/xml",
-    service = HyperlinkProviderExt.class
+        mimeType = "text/xml",
+        service = HyperlinkProviderExt.class
 )
 public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
 
-    //Properties available for class FQN names or aliases
     private static final Set<String> TYPE_REF_ATTRS = Set.of(
             "resultType",
             "parameterType",
@@ -78,41 +66,28 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
 
     @Override
     public boolean isHyperlinkPoint(Document doc, int offset, HyperlinkType type) {
+        
         AttributeInfo attr = getAttributeAt(doc, offset);
         if (attr == null) {
             return false;
         }
 
-        return "namespace".equals(attr.name)
-                || "id".equals(attr.name) || TYPE_REF_ATTRS.contains(attr.name);
+        return "namespace".equals(attr.attrName)
+                || ("id".equals(attr.attrName) && !"sql".equals(attr.tabName))
+                || TYPE_REF_ATTRS.contains(attr.attrName)
+                || ("package".equals(attr.tabName) && "name".equals(attr.attrName));
     }
 
     @Override
     public int[] getHyperlinkSpan(Document doc, int offset, HyperlinkType type) {
+
         AttributeInfo attr = getAttributeAt(doc, offset);
+
         if (attr == null) {
             return null;
         }
 
-        //
-        TokenHierarchy<?> th = TokenHierarchy.get(doc);
-        TokenSequence<XMLTokenId> ts = th.tokenSequence(XMLTokenId.language());
-
-        ts.move(offset);
-
-        if (!ts.moveNext() && !ts.movePrevious()) {
-            return null;
-        }
-
-        Token<XMLTokenId> token = ts.token();
-
-        if (token.id() == XMLTokenId.VALUE) {
-            int start = ts.offset();
-            int end = start + token.length();
-            return new int[]{start, end};
-        }
-
-        return null;
+        return new int[]{attr.attrValueOffset,attr.attrValueOffset+attr.attrValue.length()};
     }
 
     @Override
@@ -125,50 +100,80 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
 
         FileObject xmlfile = NbEditorUtilities.getFileObject(doc);
 
-        if ("namespace".equals(attr.name)) {
+        Project project = FileOwnerQuery.getOwner(xmlfile);
 
-            jumpToClass(attr.value, doc);
+        if ("namespace".equals(attr.attrName)) {
 
-        } else if ("id".equals(attr.name)) {
+            jumpToClass(attr.attrValue, doc);
+
+        } else if ("id".equals(attr.attrName)) {
 
             String namespace = findNamespace(doc);
 
-            jumpToMethod(namespace, attr.value, xmlfile);
+            jumpToMethod(namespace, attr.attrValue, xmlfile);
 
-        } else if (TYPE_REF_ATTRS.contains(attr.name)) {
+        } else if (TYPE_REF_ATTRS.contains(attr.attrName)) {
 
-            String alias = attr.value;
+            String alias = attr.attrValue;
 
-            TargetLocation configFo = findTypeAliasFQN(xmlfile, alias);
+            jumpByClassOrAlias(project, alias, xmlfile, doc);
 
-            if (configFo != null) {
+        } else if ("name".equals(attr.attrName) && "package".equals(attr.tabName)) {
 
-                try {
+            String packagename = attr.attrValue;
+            jumpToPackage(packagename, xmlfile);
 
-                    openAtEditor(configFo);
-                    return;
-
-                } catch (DataObjectNotFoundException ex) {
-                    Exceptions.printStackTrace(ex);
-                } catch (IOException ex) {
-                    Exceptions.printStackTrace(ex);
-                }
-
-            } else {
-                String resolved = resolveFromPackages(xmlfile, alias);
-                if (resolved != null) {
-                    jumpToClass(resolved, doc);
-                    return;
-                }
-            }
-
-            jumpToClass(alias, doc);
         }
 
     }
 
-    private String resolveFromPackages(FileObject xmlfile, String simpleName) {
-        Set<String> packages = findTypeAliasPackages(xmlfile);
+    public static boolean validateAlias(FileObject xmlfile, String alias) {
+
+        Project project = FileOwnerQuery.getOwner(xmlfile);
+
+        TargetLocation configFo = findTypeAliasFQN(project, alias);
+        if (configFo != null) {
+            return true;
+        }
+        String resolved = resolveFromPackages(xmlfile, alias);
+        if (resolved != null) {
+            return true;
+        }
+
+        boolean exists = MyBatisIndexer.existsJavaType(xmlfile, alias);
+
+        return exists;
+    }
+
+    public static void jumpByClassOrAlias(Project project, String alias, FileObject xmlfile, Document doc) {
+
+        TargetLocation configFo = findTypeAliasFQN(project, alias);
+        if (configFo != null) {
+            try {
+                openAtEditor(configFo);
+                return;
+            } catch (DataObjectNotFoundException ex) {
+                Exceptions.printStackTrace(ex);
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        } else {
+            String resolved = resolveFromPackages(xmlfile, alias);
+            if (resolved != null) {
+                jumpToClass(resolved, doc);
+                return;
+            }
+        }
+
+        jumpToClass(alias, doc);
+
+    }
+
+    private static String resolveFromPackages(FileObject xmlfile, String simpleName) {
+
+        Project project = FileOwnerQuery.getOwner(xmlfile);
+
+        Set<String> packages = findTypeAliasPackages(project);
 
         try {
             ClasspathInfo cpInfo = ClasspathInfo.create(xmlfile);
@@ -205,22 +210,17 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
      * @param alias
      * @return
      */
-    private TargetLocation findTypeAliasFQN(FileObject xmlfile, String alias) {
+    public static TargetLocation findTypeAliasFQN(Project project, String alias) {
 
-        Project project = FileOwnerQuery.getOwner(xmlfile);
         if (project == null) {
             return null;
         }
 
-        SourceGroup[] groups = ProjectUtils.getSources(project).getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
-        FileObject[] roots = new FileObject[groups.length];
-        for (int i = 0; i < groups.length; i++) {
-            roots[i] = groups[i].getRootFolder();
-        }
+        List<FileObject> roots = NbUtil.getRootsForSearch(project);
 
         try {
 
-            QuerySupport querySupport = QuerySupport.forRoots(MyBatisIndexerFactory.INDEXER_NAME, MyBatisIndexerFactory.version, roots);
+            QuerySupport querySupport = QuerySupport.forRoots(MyBatisIndexerFactory.INDEXER_NAME, MyBatisIndexerFactory.version, roots.toArray(new FileObject[0]));
 
             //
             Collection<? extends IndexResult> results;
@@ -257,37 +257,29 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
             return null;
         }
 
-        if ("namespace".equals(attr.name)) {
-            return "Go to Java Mapper: " + attr.value;
-        } else if ("id".equals(attr.name)) {
-            return "Go to Method: " + attr.value;
+        if ("namespace".equals(attr.attrName)) {
+            return "Go to Java Mapper: " + attr.attrValue;
+        } else if ("id".equals(attr.attrName)) {
+            return "Go to Method: " + attr.attrValue;
         }
 
         return null;
     }
 
-    private Set<String> findTypeAliasPackages(FileObject xmlfile) {
+    private static Set<String> findTypeAliasPackages(Project project) {
         Set<String> packages = new HashSet<>();
 
-        Project project = FileOwnerQuery.getOwner(xmlfile);
         if (project == null) {
             return packages;
         }
 
-        SourceGroup[] groups = ProjectUtils.getSources(project)
-                .getSourceGroups(JavaProjectConstants.SOURCES_TYPE_JAVA);
-
-        FileObject[] roots = new FileObject[groups.length];
-
-        for (int i = 0; i < groups.length; i++) {
-            roots[i] = groups[i].getRootFolder();
-        }
+        List<FileObject> roots = NbUtil.getRootsForSearch(project);
 
         try {
             QuerySupport qs = QuerySupport.forRoots(
                     MyBatisIndexerFactory.INDEXER_NAME,
                     MyBatisIndexerFactory.version,
-                    roots
+                    roots.toArray(new FileObject[0])
             );
 
             Collection<? extends IndexResult> results
@@ -309,17 +301,16 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
     }
 
     /**
-     *
+     * 
      * @param doc
      * @param offset
-     * @return
+     * @return 
      */
     private AttributeInfo getAttributeAt(Document doc, int offset) {
-
+        
         final AttributeInfo[] result = new AttributeInfo[1];
 
         doc.render(() -> {
-
             TokenHierarchy<?> th = TokenHierarchy.get(doc);
             if (th == null) {
                 return;
@@ -337,29 +328,53 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
             }
 
             Token<XMLTokenId> token = ts.token();
-
             if (token.id() != XMLTokenId.VALUE) {
                 return;
             }
 
-            String value = token.text().toString();
+            // 属性値の情報の取得
+            String rawValue = token.text().toString();
+            int valueOffset = ts.offset(); // 属性値（クォート含む）の開始位置
 
-            if (value.length() >= 2) {
-                value = value.substring(1, value.length() - 1);
+            int cleanValueOffset = valueOffset;
+            String cleanValue = rawValue;
+            if (rawValue.length() >= 2 && (rawValue.startsWith("\"") || rawValue.startsWith("'"))) {
+                cleanValue = rawValue.substring(1, rawValue.length() - 1);
+                cleanValueOffset = valueOffset + 1;
             }
 
-            Token<XMLTokenId> prev;
+            String attrName = null;
+            int attrNameOffset = -1;
+            String tagName = null;
+
+            // 1. 属性名 (ARGUMENT) を求めて遡る
             while (ts.movePrevious()) {
-                prev = ts.token();
-                if (prev.id() == XMLTokenId.ARGUMENT) {
-                    String name = prev.text().toString();
-                    result[0] = new AttributeInfo(name, value);
-                    return;
+                Token<XMLTokenId> t = ts.token();
+                if (t.id() == XMLTokenId.ARGUMENT) {
+                    attrName = t.text().toString();
+                    attrNameOffset = ts.offset(); // 属性名の開始位置
+                    break;
                 }
-                // OPERATOR や空白はスキップ
+                // タグの開始まで戻ってしまったら中断
+                if (t.id() == XMLTokenId.TAG && t.text().toString().startsWith("<")) {
+                    break;
+                }
             }
 
-         
+            // 2. タグ名 (TAG) を求めてさらに遡る
+            if (attrName != null) {
+                while (ts.movePrevious()) {
+                    Token<XMLTokenId> t = ts.token();
+                    if (t.id() == XMLTokenId.TAG && t.text().toString().startsWith("<")) {
+                        tagName = t.text().toString().substring(1).trim();
+                        break;
+                    }
+                }
+            }
+
+            if (tagName != null && attrName != null) {
+                result[0] = new AttributeInfo(tagName, attrName, attrNameOffset, cleanValue, cleanValueOffset);
+            }
         });
 
         return result[0];
@@ -412,7 +427,7 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
      * @param fqn
      * @param doc
      */
-    private void jumpToClass(String fqn, Document doc) {
+    private static void jumpToClass(String fqn, Document doc) {
 
         try {
 
@@ -483,17 +498,20 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
         }
     }
 
-    // =========================
-    // DTO
-    // =========================
     private static class AttributeInfo {
 
-        final String name;
-        final String value;
+        final String attrName;
+        final int attrNameOffset;
+        final String attrValue;
+        final int attrValueOffset;
+        final String tabName;
 
-        AttributeInfo(String name, String value) {
-            this.name = name;
-            this.value = value;
+        AttributeInfo(String tabName, String attrName, int attrNameOffset, String attrValue, int attrValueOffset) {
+            this.tabName = tabName;
+            this.attrName = attrName;
+            this.attrValue = attrValue;
+            this.attrNameOffset = attrNameOffset;
+            this.attrValueOffset = attrValueOffset;
         }
     }
 
@@ -503,7 +521,7 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
      * @throws DataObjectNotFoundException
      * @throws IOException
      */
-    private void openAtEditor(TargetLocation location) throws DataObjectNotFoundException, IOException {
+    private static void openAtEditor(TargetLocation location) throws DataObjectNotFoundException, IOException {
 
         if (location != null && location.file != null) {
 
@@ -512,8 +530,6 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
 
             if (ec != null) {
 
-                //
-                //StyledDocument xmlDoc = ec.openDocument();
                 ec.open();
 
                 //
@@ -522,6 +538,57 @@ public class MyBatisXmlHyperlinkProvider implements HyperlinkProviderExt {
 
                     NbDocument.openDocument(location.file, jumpPos, Line.ShowOpenType.OPEN, Line.ShowVisibilityType.FOCUS);
                 }
+            }
+        }
+    }
+
+    public static boolean isExistPackage(String packageName, FileObject xmlfile) {
+
+        org.netbeans.api.java.classpath.ClassPath cp
+                = org.netbeans.api.java.classpath.ClassPath.getClassPath(xmlfile, org.netbeans.api.java.classpath.ClassPath.SOURCE);
+
+        if (cp == null) {
+            return false;
+        }
+
+        String resourcePath = packageName.replace('.', '/');
+        FileObject pkgFolder = cp.findResource(resourcePath);
+
+        return pkgFolder != null && pkgFolder.isFolder();
+
+    }
+
+    private static void jumpToPackage(String packageName, FileObject xmlfile) {
+        if (packageName == null || packageName.isEmpty()) {
+            return;
+        }
+
+        org.netbeans.api.java.classpath.ClassPath cp
+                = org.netbeans.api.java.classpath.ClassPath.getClassPath(xmlfile, org.netbeans.api.java.classpath.ClassPath.SOURCE);
+
+        if (cp == null) {
+            return;
+        }
+
+        String resourcePath = packageName.replace('.', '/');
+        FileObject pkgFolder = cp.findResource(resourcePath);
+
+        if (pkgFolder != null && pkgFolder.isFolder()) {
+            try {
+                DataObject dobj = DataObject.find(pkgFolder);
+
+                org.openide.cookies.OpenCookie oc = dobj.getLookup().lookup(org.openide.cookies.OpenCookie.class);
+
+                if (oc != null) {
+                    oc.open();
+                } else {
+                    org.openide.cookies.EditCookie ec = dobj.getLookup().lookup(org.openide.cookies.EditCookie.class);
+                    if (ec != null) {
+                        ec.edit();
+                    }
+                }
+            } catch (DataObjectNotFoundException ex) {
+                Exceptions.printStackTrace(ex);
             }
         }
     }
