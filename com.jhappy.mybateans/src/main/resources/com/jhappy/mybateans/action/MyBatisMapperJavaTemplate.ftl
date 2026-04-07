@@ -12,22 +12,27 @@ import org.apache.ibatis.annotations.Mapper;
 public interface ${className}Mapper {
 
     /**
-     * Select records by example.
+     * @param ${variableName}
+     * @return 
      */
-    List<${className}> select(${className} example);
+    List<${className}> select(${className} ${variableName});
 
     /**
-     * Insert a new record.
+     * @param ${variableName}
+     * @return 
      */
-    int insert(${className} record);
+    int insert(${className} ${variableName});
 
     /**
-     * Update records by example.
+     * @param ${variableName}
+     * @return 
      */
-    int update(${className} record);
+    int update(${className} ${variableName});
 
     /**
-     * Delete records by example.
+     * @param ${variableName}
+     * @return 
      */
-    int delete(${className} example);
+    int delete(${className} ${variableName});
+
 }

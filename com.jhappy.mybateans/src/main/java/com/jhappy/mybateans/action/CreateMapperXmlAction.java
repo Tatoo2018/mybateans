@@ -102,6 +102,7 @@ public final class CreateMapperXmlAction implements ActionListener {
                     }
 
                     String className = typeElement.getSimpleName().toString();
+                    String qualifiedName = typeElement.getQualifiedName().toString();
                     String fqn = typeElement.getQualifiedName().toString();
                     String packageName = fqn.contains(".") ? fqn.substring(0, fqn.lastIndexOf('.')) : "";
                     String tableName = camelToSnake(className);
@@ -142,7 +143,8 @@ public final class CreateMapperXmlAction implements ActionListener {
 
             Map<String, Object> params = new HashMap<>();
             params.put("namespace", fqn + "Mapper");
-            params.put("className", fqn);
+              params.put("className", className);
+            params.put("classFqnName", fqn);
             params.put("tableName", tableName);
             params.put("columns", columns);
 
@@ -167,6 +169,7 @@ public final class CreateMapperXmlAction implements ActionListener {
             Map<String, Object> params = new HashMap<>();
             params.put("packageName", packageName);
             params.put("className", className);
+            params.put("variableName", className.substring(0, 1).toLowerCase() + className.substring(1));
             params.put("tableName", tableName);
 
             String resultJava = applyTemplate(templateStr, params, "MyBatisMapperJavaTemplate.ftl");
