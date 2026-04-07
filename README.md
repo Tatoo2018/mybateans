@@ -45,10 +45,15 @@ MyBateans は、NetBeans IDE での MyBatis 開発をより快適（Happy）に�
 ### 🚀 インストール方法 (更新サイト)
 NetBeans のプラグイン設定（`ツール > プラグイン > 設定 > 追加`）に以下の URL を登録することでインストール・更新が可能です。
 
-| チャンネル | 更新サイト URL |
-| :--- | :--- |
-| **Main** (安定版) | `https://tatoo2018.github.io/MyBateans/updatesite/main/updates.xml` |
-| **Develop** (最新版) | `https://tatoo2018.github.io/MyBateans/updatesite/develop/updates.xml` |
+| チャンネル | 更新サイト URL | 説明 |
+| :--- | :--- | :--- |
+| **NetBeans Module 本体** | `com.jhappy.mybateans` | モジュール本体です | 
+| **MyBatis サンプルプロジェクト** | `MyBatisSampleTemplateProject` | MyBaitisのサンプルプロジェクト|
+
+MyBatis サンプルプロジェクトは
+MyBateans内で
+[New Project]>[Samples]>[MyBatis Sample Template Project]
+として利用されます。
 
 ---
 
