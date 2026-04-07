@@ -35,6 +35,8 @@ You can install and update MyBateans by adding the following URL to your NetBean
 
 MyBateans は、NetBeans IDE での MyBatis 開発をより快適（Happy）にするためのプラグインです。高度な静的解析により、Java インターフェースと Mapper XML ファイルを強力に連携させます。
 
+
+
 ### ✨ 主な機能
 * **スマート・ナビゲーション (相互ジャンプ)**: `Ctrl+クリック` で Java メソッドから対応する XML の SQL ID へ、またはその逆へ瞬時に移動できます。
 * **コード自動生成 (Hint & Fix)**: Java 側でメソッドを定義するだけで、不足している XML タグ（`<select>`, `<insert>` 等）をパラメータ付きで自動生成します。
@@ -45,6 +47,12 @@ MyBateans は、NetBeans IDE での MyBatis 開発をより快適（Happy）に�
 ### 🚀 インストール方法 (更新サイト)
 NetBeans のプラグイン設定（`ツール > プラグイン > 設定 > 追加`）に以下の URL を登録することでインストール・更新が可能です。
 
+| :--- | :--- |
+| **Main** (安定版) | `https://tatoo2018.github.io/MyBateans/updatesite/main/updates.xml` |
+| **Develop** (最新版) | `https://tatoo2018.github.io/MyBateans/updatesite/develop/updates.xml` |
+
+
+### プロジェクトフォルダの説明
 | チャンネル | 更新サイト URL | 説明 |
 | :--- | :--- | :--- |
 | **NetBeans Module 本体** | `com.jhappy.mybateans` | モジュール本体です | 
