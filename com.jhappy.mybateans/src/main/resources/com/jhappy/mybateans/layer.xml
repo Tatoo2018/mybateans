@@ -14,5 +14,20 @@
             </folder>
         </folder>
     </folder>
+    
+    <folder name="Templates">
+        <folder name="MyBatis">
+            <file name="MyBatisMapperTemplate.xml" url="nbres:/com/jhappy/mybateans/template/file/MyBatisMapperTemplate.xml">
+                <attr name="displayName" stringvalue="bundlecol:com.jhappy.mybateans.template.Bundle#LBL_XmlTemplate"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+            <file name="MyBatisMapperJavaTemplate.ftl" url="nbres:/com/jhappy/mybateans/template/file/MyBatisMapperJavaTemplate.ftl">
+                <attr name="displayName" stringvalue="bundlecol:com.jhappy.mybateans.template.Bundle#LBL_JavaTemplate"/>
+                <attr name="template" boolvalue="true"/>
+            </file>
+        </folder>
+    </folder>
+    
+    
 
 </filesystem>

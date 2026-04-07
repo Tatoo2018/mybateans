@@ -30,6 +30,7 @@ import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
@@ -134,12 +135,10 @@ public final class CreateMapperXmlAction implements ActionListener {
 
     private void generateXml(DataFolder targetFolder, String className, String fqn, String tableName, List<Map<String, String>> columns) {
         try {
-            String templateStr;
-            try (InputStream is = getClass().getResourceAsStream("MyBatisMapperTemplate.xml")) {
-                if (is == null) {
-                    return;
-                }   templateStr = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-            }
+
+
+            FileObject templateFO = FileUtil.getConfigFile("Templates/MyBatis/MyBatisMapperTemplate.xml");
+            String templateStr = templateFO.asText("UTF-8");
 
             Map<String, Object> params = new HashMap<>();
             params.put("namespace", fqn + "Mapper");
@@ -159,12 +158,10 @@ public final class CreateMapperXmlAction implements ActionListener {
 
     private void generateJavaMapper(DataFolder targetFolder, String className, String packageName, String tableName) {
         try {
-            String templateStr;
-            try (InputStream is = getClass().getResourceAsStream("MyBatisMapperJavaTemplate.ftl")) {
-                if (is == null) {
-                    return;
-                }   templateStr = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-            }
+        
+            
+            FileObject templateFO = FileUtil.getConfigFile("Templates/MyBatis/MyBatisMapperJavaTemplate.ftl");
+            String templateStr = templateFO.asText("UTF-8");
 
             Map<String, Object> params = new HashMap<>();
             params.put("packageName", packageName);

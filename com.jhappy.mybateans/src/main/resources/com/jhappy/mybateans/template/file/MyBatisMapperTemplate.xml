@@ -16,8 +16,9 @@
     <select id="select" resultMap="${className}ResultMap">
         SELECT
             <include refid="Base_Column_List" />
-        FROM 1=1
+        FROM 
             ${tableName}
+        WHERE 1=1
             <#list columns as col>
             <if test="${col.property} != null">
                 AND ${col.column} = <#noparse>#{</#noparse>${col.property}<#noparse>}</#noparse>
@@ -35,7 +36,8 @@
     </insert>
 
     <update id="update" parameterType="${classFqnName}">
-        UPDATE ${tableName}
+        UPDATE 
+            ${tableName}
         SET
             <#list columns as col>
             ${col.column} = <#noparse>#{</#noparse>${col.property}<#noparse>}</#noparse><#if col?has_next>, </#if>
@@ -47,7 +49,8 @@
     </update>
 
     <delete id="delete">
-        DELETE FROM ${tableName}
+        DELETE FROM 
+            ${tableName}
         WHERE 1=1
             <#list columns as col>
             AND ${col.column} = <#noparse>#{</#noparse>${col.property}<#noparse>}</#noparse><#if col?has_next></#if>
