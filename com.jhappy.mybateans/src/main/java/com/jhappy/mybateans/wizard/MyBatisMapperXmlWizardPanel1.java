@@ -39,6 +39,7 @@ public class MyBatisMapperXmlWizardPanel1 implements WizardDescriptor.Panel<Wiza
 
     @Override
     public void readSettings(WizardDescriptor wiz) {
+        
 
     }
 

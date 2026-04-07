@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.Modifier;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.templates.TemplateRegistration;
@@ -19,15 +22,7 @@ import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.util.NbBundle.Messages;
 
-@TemplateRegistration(
-    scriptEngine = "freemarker",
-    content = "MyBatisMapper.xml",
-    folder = "MyBatis",  
-    displayName = "#MyBatisMapperXmlWizardIterator_displayName",
-    description = "myBatisMapperXml.html",
-    position = 100
-)
-@Messages("MyBatisMapperXmlWizardIterator_displayName=MyBatis Mapper Xml")
+@Messages("MyBatisMapperXmlWizardIterator_displayName=MyBatis Mapper XML")
 public final class MyBatisMapperXmlWizardIterator implements WizardDescriptor.InstantiatingIterator<WizardDescriptor> {
 
     private int index;
@@ -73,21 +68,29 @@ public final class MyBatisMapperXmlWizardIterator implements WizardDescriptor.In
         String className = MyBatisMapperXmlVisualPanel1.toClassName(tableName);
         String fileName = className + "Mapper";
 
-        if(namespace!=null && !namespace.trim().equals("")){
-               namespace = namespace + "." + fileName;
-        }else{
-               namespace = fileName;
+        if (namespace != null && !namespace.trim().equals("")) {
+            namespace = namespace + "." + fileName;
+        } else {
+            namespace = fileName;
         }
+
+        List<Map<String, String>> columns = new ArrayList<>();
+        Map<String, String> colMap = new HashMap<>();
+        colMap.put("property", "id");
+        colMap.put("column", "id");
+        columns.add(colMap);
 
         Map<String, Object> params = new HashMap<>();
         params.put("namespace", namespace);
-        params.put("tableName", tableName);
         params.put("className", className);
+        params.put("classFqnName", className);
+        params.put("tableName", tableName);
+        params.put("columns", columns);
 
         DataFolder folder = DataFolder.findFolder(targetFolder);
         DataObject templateDO = DataObject.find(template).find(template);
 
-        DataObject created = templateDO.createFromTemplate(folder, fileName,params);
+        DataObject created = templateDO.createFromTemplate(folder, fileName, params);
 
         return Collections.singleton(created.getPrimaryFile());
     }
@@ -138,7 +141,6 @@ public final class MyBatisMapperXmlWizardIterator implements WizardDescriptor.In
         index--;
     }
 
-  
     @Override
     public void addChangeListener(ChangeListener l) {
     }

@@ -16,14 +16,23 @@
     </folder>
     
     <folder name="Templates">
+           
         <folder name="MyBatis">
-            <file name="MyBatisMapperTemplate.xml" url="nbres:/com/jhappy/mybateans/template/file/MyBatisMapperTemplate.xml">
-                <attr name="displayName" stringvalue="bundlecol:com.jhappy.mybateans.template.Bundle#LBL_XmlTemplate"/>
-                <attr name="template" boolvalue="true"/>
+            <file name="MyBatisMapperTemplate.xml" url="nbresloc:/com/jhappy/mybateans/wizard/MyBatisMapperTemplate.xml">
+                <!--com.jhappy.mybateans.wizard.MyBatisMapperXmlWizardIterator-->
+                <attr boolvalue="true" name="template"/>
+                <attr intvalue="100" name="position"/>
+                <attr bundlevalue="com.jhappy.mybateans.wizard.Bundle#MyBatisMapperXmlWizardIterator_displayName" name="displayName"/>
+                <attr name="instantiatingWizardURL" urlvalue="nbresloc:/com/jhappy/mybateans/wizard/myBatisMapperXml.html"/>
+                <attr name="instantiatingIterator" newvalue="com.jhappy.mybateans.wizard.MyBatisMapperXmlWizardIterator"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr boolvalue="true" name="requireProject"/>
+                <attr name="iconBase" stringvalue="com/jhappy/mybateans/images/icon.png"/>
             </file>
             <file name="MyBatisMapperJavaTemplate.ftl" url="nbres:/com/jhappy/mybateans/template/file/MyBatisMapperJavaTemplate.ftl">
-                <attr name="displayName" stringvalue="bundlecol:com.jhappy.mybateans.template.Bundle#LBL_JavaTemplate"/>
-                <attr name="template" boolvalue="true"/>
+                <attr name="displayName" stringvalue="Mapper Java Class"/>
+                <attr name="template" boolvalue="false"/>
+                <attr name="iconBase" stringvalue="com/jhappy/mybateans/images/icon.png"/>
             </file>
         </folder>
     </folder>
