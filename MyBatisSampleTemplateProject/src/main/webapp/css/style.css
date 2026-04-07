@@ -1,0 +1,163 @@
+body{
+    background-color: #f2fff2;
+}
+
+.link{
+    font-size: 20px;
+    letter-spacing: 3px;
+    padding: 0 10px;
+    color: #106afc;
+}
+
+.formbox{
+    margin:20px auto;
+    box-shadow: 5px 5px 5px gray;
+    width:500px;
+}
+
+.row{
+    display: flex;
+    margin:10px 0;
+}
+.formlabel{
+    width:140px;
+}
+
+.formbox{
+    border: 1px solid gray;
+    padding: 20px;
+
+    background: #f5f5f5;
+    border-radius: 10px;
+}
+
+.savebuton{
+    width: 100%;
+    margin: 10px 0 0;
+    font-size: 18px;
+    padding: 10px 0;
+    background: #009eff;
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+}
+
+.forminput input[type="text"],.forminput textarea{
+    width:100%;
+}
+
+.forminput{
+    flex: 1;
+}
+
+.table{
+    background-color: white;
+}
+
+.form-title{
+    text-align: center;
+    font-weight: bold;
+    border-bottom: 1px solid gray;
+    padding: 0 0 10px;
+    margin:0 0 10px;
+}
+
+.table th{
+    background-color: #e3e3e3;
+    padding:0 10px;
+}
+.table td{
+    padding: 4px 6px;
+
+}
+
+.prewrapcell{
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.button{
+    font-size: 14px;
+    letter-spacing: 1px;
+    min-width: 80px;
+    text-align: center;
+    background: #e3e3e3;
+    text-decoration: none;
+    padding: 0px 8px;
+    border-radius: 5px;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    height: 26px;
+    border: 1px solid gray;
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+.button:hover{
+    opacity: 0.7;
+}
+
+.search-text{
+    font-size: 16px;
+}
+
+
+.editbutton{
+    background: #e5ff00;
+    margin: 0 0 5px 0;
+}
+
+.delbutton{
+    background: #ff9f9f;
+}
+
+.addbutton{
+    margin: 0 0 6px 4px;
+    background: #76c2ff;
+}
+
+.idcolumn{
+    padding: 4px 4px;
+    text-align: center;
+}
+
+.savebutton{
+    margin:10px 0 0 0;
+    width: 100%;
+    background: #76c2ff;
+    height: 40px;
+}
+
+
+.messagebox{
+    margin:30px 0 0 0;
+}
+.messageboxmessage{
+    color: red;
+    font-size: 20px;
+}
+.messageboxsql{
+    background-color: white;
+    padding:20px;
+    border:1px solid gray;
+}
+
+.descriptiontext{
+    height: 100px;
+}
+
+.iscompleted-status{
+    color: white;
+    text-align: center;
+    padding: 7px;
+    background: #c94040;
+    font-weight: bold;
+    min-width: 70px;
+    border-radius: 20px;
+    display: inline-block;
+}
+

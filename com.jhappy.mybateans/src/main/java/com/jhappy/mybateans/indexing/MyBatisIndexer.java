@@ -155,9 +155,9 @@ public class MyBatisIndexer extends CustomIndexer {
     }
 
     /**
-     * 
+     *
      * @param mapperRoot
-     * @return 
+     * @return
      */
     public static List<XmlData> getSqlTagData(XmlData mapperRoot) {
         List<XmlData> sqlNodes = new ArrayList<>();
@@ -168,16 +168,16 @@ public class MyBatisIndexer extends CustomIndexer {
     }
 
     /**
-     * 
+     *
      * @param mapperRoot
-     * @return 
+     * @return
      */
     public static Map<String, String> getMapperTagData(XmlData mapperRoot) {
 
         Map<String, String> headerData = new HashMap<>();
 
         List<XmlData> nsAttr = mapperRoot.select("mapper");
-        
+
         if (!nsAttr.isEmpty()) {
 
             XmlData data = nsAttr.get(0);
@@ -199,12 +199,12 @@ public class MyBatisIndexer extends CustomIndexer {
     }
 
     /**
-     * 
+     *
      * @param packageList
      * @param support
      * @param indexable
      * @param confs
-     * @param headerData 
+     * @param headerData
      */
     public void saveIndex(List<XmlData> packageList, IndexingSupport support, Indexable indexable, List<String[]> confs, Map<String, String> headerData) {
         for (XmlData data : packageList) {
@@ -273,9 +273,9 @@ public class MyBatisIndexer extends CustomIndexer {
     }
 
     /**
-     * 
+     *
      * @param fo
-     * @return 
+     * @return
      */
     public static MyBatisMapperData parseMyBatisConfigXml(FileObject fo) {
 
@@ -302,9 +302,9 @@ public class MyBatisIndexer extends CustomIndexer {
     }
 
     /**
-     * 
+     *
      * @param fo
-     * @return 
+     * @return
      */
     public static boolean isMapperXml(FileObject fo) {
         try {
@@ -316,9 +316,9 @@ public class MyBatisIndexer extends CustomIndexer {
     }
 
     /**
-     * 
+     *
      * @param fo
-     * @return 
+     * @return
      */
     public static boolean isConfigXml(FileObject fo) {
         try {
@@ -330,24 +330,24 @@ public class MyBatisIndexer extends CustomIndexer {
     }
 
     /**
-     * 
+     *
      * @param fo
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     public static boolean isSpringConfigXml(FileObject fo) throws Exception {
         return hasRootElement(fo, "beans");
     }
 
     /**
-     * 
+     *
      * @param fo
      * @param expectedRoot
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     private static boolean hasRootElement(FileObject fo, String expectedRoot) throws Exception {
-        if (!"xml".equals(fo.getExt())) {
+        if (!"xml".equals(fo.getExt()) || fo.getSize() == 0) {
             return false;
         }
 
@@ -357,20 +357,26 @@ public class MyBatisIndexer extends CustomIndexer {
 
         try (InputStream is = fo.getInputStream()) {
             XMLStreamReader reader = factory.createXMLStreamReader(is);
-            while (reader.hasNext()) {
-                int event = reader.next();
-                if (event == XMLStreamConstants.START_ELEMENT) {
-                    return expectedRoot.equals(reader.getLocalName());
+            try {
+                while (reader.hasNext()) {
+                    int event = reader.next();
+                    if (event == XMLStreamConstants.START_ELEMENT) {
+                        return expectedRoot.equals(reader.getLocalName());
+                    }
                 }
+            } catch (Exception ex) {
+                return false;
+            } finally {
+                reader.close();
             }
         }
         return false;
     }
 
     /**
-     * 
+     *
      * @param fo
-     * @return 
+     * @return
      */
     public static String getContentType(FileObject fo) {
         if (!"xml".equals(fo.getExt())) {

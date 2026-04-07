@@ -26,6 +26,16 @@ You can install and update MyBateans by adding the following URL to your NetBean
 | **Main** (Stable) | `https://tatoo2018.github.io/MyBateans/updatesite/main/updates.xml` |
 | **Develop** (Latest) | `https://tatoo2018.github.io/MyBateans/updatesite/develop/updates.xml` |
 
+### 📁 Project Folder Descriptions
+
+| Title| Path | Description |
+| :--- | :--- | :--- |
+| **NetBeans Module** | `com.jhappy.mybateans` | The core plugin module. | 
+| **MyBatis Sample Project** | `MyBatisSampleTemplateProject` | A sample project for MyBatis.|
+
+The MyBatis Sample Project is integrated into MyBateans and can be accessed via:
+[New Project] > [Samples] > [MyBatis Sample Template Project].
+
 ---
 
 ## 日本語
@@ -34,6 +44,8 @@ You can install and update MyBateans by adding the following URL to your NetBean
 > **プレビュー版** > このプラグインは現在開発途中のプレビュー版です。機能の変更が行われる可能性があるため、フィードバックや不具合報告を歓迎します。
 
 MyBateans は、NetBeans IDE での MyBatis 開発をより快適（Happy）にするためのプラグインです。高度な静的解析により、Java インターフェースと Mapper XML ファイルを強力に連携させます。
+
+
 
 ### ✨ 主な機能
 * **スマート・ナビゲーション (相互ジャンプ)**: `Ctrl+クリック` で Java メソッドから対応する XML の SQL ID へ、またはその逆へ瞬時に移動できます。
@@ -45,10 +57,23 @@ MyBateans は、NetBeans IDE での MyBatis 開発をより快適（Happy）に�
 ### 🚀 インストール方法 (更新サイト)
 NetBeans のプラグイン設定（`ツール > プラグイン > 設定 > 追加`）に以下の URL を登録することでインストール・更新が可能です。
 
-| チャンネル | 更新サイト URL |
+| Channel | Update Center URL |
 | :--- | :--- |
 | **Main** (安定版) | `https://tatoo2018.github.io/MyBateans/updatesite/main/updates.xml` |
 | **Develop** (最新版) | `https://tatoo2018.github.io/MyBateans/updatesite/develop/updates.xml` |
+
+
+### 📁 プロジェクトフォルダの説明
+
+| タイトル | フォルダ | 説明 |
+| :--- | :--- | :--- |
+| **NetBeans Module 本体** | `com.jhappy.mybateans` | モジュール本体です | 
+| **MyBatis サンプルプロジェクト** | `MyBatisSampleTemplateProject` | MyBaitisのサンプルプロジェクト|
+
+MyBatis サンプルプロジェクトは
+MyBateans内で
+[New Project]>[Samples]>[MyBatis Sample Template Project]
+として利用されます。
 
 ---
 
@@ -73,3 +98,13 @@ MyBateans 是一款专为 NetBeans IDE 打造的 MyBatis 增强插件。通过�
 | :--- | :--- |
 | **Main** (稳定版) | `https://tatoo2018.github.io/MyBateans/updatesite/main/updates.xml` |
 | **Develop** (最新版) | `https://tatoo2018.github.io/MyBateans/updatesite/develop/updates.xml` |
+
+### 📁 プロジェクトフォルダの説明
+
+| 渠道 | 存储库 / 路径 | 说明 |
+| :--- | :--- | :--- |
+| **渠道存储库 / 路径说明NetBeans 模块本体** | `com.jhappy.mybateans` | モ插件核心模块 | 
+| **MyBatis 示例项目** | `MyBatisSampleTemplateProject` | MyBatis 示例项目 |
+
+MyBatis 示例项目 已集成在 MyBateans 中，可通过以下路径使用：
+[New Project] > [Samples] > [MyBatis Sample Template Project]
