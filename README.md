@@ -26,7 +26,7 @@ You can install and update MyBateans by adding the following URL to your NetBean
 | **Main** (Stable) | `https://tatoo2018.github.io/MyBateans/updatesite/main/updates.xml` |
 | **Develop** (Latest) | `https://tatoo2018.github.io/MyBateans/updatesite/develop/updates.xml` |
 
-### Project Folder Descriptions
+### 📁 Project Folder Descriptions
 
 | Title| Path | Description |
 | :--- | :--- | :--- |
@@ -63,7 +63,7 @@ NetBeans のプラグイン設定（`ツール > プラグイン > 設定 > 追�
 | **Develop** (最新版) | `https://tatoo2018.github.io/MyBateans/updatesite/develop/updates.xml` |
 
 
-### プロジェクトフォルダの説明
+### 📁 プロジェクトフォルダの説明
 
 | タイトル | フォルダ | 説明 |
 | :--- | :--- | :--- |
@@ -99,7 +99,7 @@ MyBateans 是一款专为 NetBeans IDE 打造的 MyBatis 增强插件。通过�
 | **Main** (稳定版) | `https://tatoo2018.github.io/MyBateans/updatesite/main/updates.xml` |
 | **Develop** (最新版) | `https://tatoo2018.github.io/MyBateans/updatesite/develop/updates.xml` |
 
-### プロジェクトフォルダの説明
+### 📁 プロジェクトフォルダの説明
 
 | 渠道 | 存储库 / 路径 | 说明 |
 | :--- | :--- | :--- |
