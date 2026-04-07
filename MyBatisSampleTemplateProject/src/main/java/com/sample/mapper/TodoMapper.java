@@ -1,7 +1,6 @@
 package com.sample.mapper;
 
 import com.sample.dbmodel.Todo;
-import java.sql.Date;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 

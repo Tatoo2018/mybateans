@@ -28,39 +28,39 @@
 
             <c:choose>
                 <c:when test="${not empty todos}">
-                    <c:forEach var="c" items="${todos}">
+                    <c:forEach var="todo" items="${todos}">
                         <tr>
                             <td class="idcolumn">
-                                <a class="editbutton button" href="${pageContext.request.contextPath}/edit?id=${c.id}">Edit</a>
+                                <a class="editbutton button" href="${pageContext.request.contextPath}/edit?id=${todo.id}">Edit</a>
                                 <form style="margin:0" action="${pageContext.request.contextPath}/delete" method="POST" >
                                     <button type="submit" class="delbutton button">Delete</button>
-                                    <input type="hidden" name="id" value="${c.id}" />
+                                    <input type="hidden" name="id" value="${todo.id}" />
                                 </form>
                             </td>
-                            <td><c:out value="${c.id}" /></td>
-                            <td><c:out value="${c.title}" /></td>
-                            <td class="prewrapcell"><c:out value="${c.description}" /></td>
+                            <td><c:out value="${todo.id}" /></td>
+                            <td><c:out value="${todo.title}" /></td>
+                            <td class="prewrapcell"><c:out value="${todo.description}" /></td>
                             <td>
-                                <fmt:formatDate value="${c.dueDate}" pattern="yyyy/MM/dd" />
+                                <fmt:formatDate value="${todo.dueDate}" pattern="yyyy/MM/dd" />
                             </td>
-                            <td>
+                            <td style="text-align: center">
                                 <c:choose>
-                                    <c:when test="${c.isCompleted == 1}">
-                                        <span style='color:green;'>完了</span>
+                                    <c:when test="${todo.isCompleted == 1}">
+                                        <span class="iscompleted-status" style="background-color: #929292">完了</span>
                                     </c:when>
                                     <c:otherwise>
-                                        <span style='color:red;'>未完了</span>
+                                        <span class="iscompleted-status" style="background-color: #e35656">未完了</span>
                                     </c:otherwise>
                                 </c:choose>
                             </td>
                             <td>
-                                <fmt:formatDate value="${c.createdAt}" pattern="yyyy/MM/dd HH:mm:ss" />
+                                <fmt:formatDate value="${todo.createdAt}" pattern="yyyy/MM/dd HH:mm:ss" />
                             </td>
                         </tr>
                     </c:forEach>
                 </c:when>
                 <c:otherwise>
-                    <tr><td colspan="7">No data found.</td></tr>
+                    <tr><td colspan="7"><div style="text-align: center;font-size: 30px;padding: 30px 0;font-weight: bold;">No data found.</div></td></tr>
                 </c:otherwise>
             </c:choose>
         </table>
