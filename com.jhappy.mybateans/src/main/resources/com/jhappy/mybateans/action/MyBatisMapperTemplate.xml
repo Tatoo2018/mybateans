@@ -22,6 +22,7 @@
             <if test="${col.property} != null">
                 AND ${col.column} = <#noparse>#{</#noparse>${col.property}<#noparse>}</#noparse>
             </if>
+            </#list>
     </select>
 
     <insert id="insert" parameterType="${classFqnName}">

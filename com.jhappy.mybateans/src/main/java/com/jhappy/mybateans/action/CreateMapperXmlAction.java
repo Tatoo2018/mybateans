@@ -134,12 +134,12 @@ public final class CreateMapperXmlAction implements ActionListener {
 
     private void generateXml(DataFolder targetFolder, String className, String fqn, String tableName, List<Map<String, String>> columns) {
         try {
-            InputStream is = getClass().getResourceAsStream("MyBatisMapperTemplate.xml");
-            if (is == null) {
-                return;
+            String templateStr;
+            try (InputStream is = getClass().getResourceAsStream("MyBatisMapperTemplate.xml")) {
+                if (is == null) {
+                    return;
+                }   templateStr = new String(is.readAllBytes(), StandardCharsets.UTF_8);
             }
-            String templateStr = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-            is.close();
 
             Map<String, Object> params = new HashMap<>();
             params.put("namespace", fqn + "Mapper");
@@ -159,12 +159,12 @@ public final class CreateMapperXmlAction implements ActionListener {
 
     private void generateJavaMapper(DataFolder targetFolder, String className, String packageName, String tableName) {
         try {
-            InputStream is = getClass().getResourceAsStream("MyBatisMapperJavaTemplate.ftl");
-            if (is == null) {
-                return;
+            String templateStr;
+            try (InputStream is = getClass().getResourceAsStream("MyBatisMapperJavaTemplate.ftl")) {
+                if (is == null) {
+                    return;
+                }   templateStr = new String(is.readAllBytes(), StandardCharsets.UTF_8);
             }
-            String templateStr = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-            is.close();
 
             Map<String, Object> params = new HashMap<>();
             params.put("packageName", packageName);

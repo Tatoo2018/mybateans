@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtds/mybatis-3-mapper.dtd">
+<mapper namespace="com.sample.dbmodel.TodoMapper">
+
+    <resultMap id="com.sample.dbmodel.TodoResultMap" type="com.sample.dbmodel.Todo">
+        
+        <result property="id" column="id" />
+        
+        <result property="title" column="title" />
+        
+        <result property="description" column="description" />
+        
+        <result property="dueDate" column="due_date" />
+        
+        <result property="isCompleted" column="is_completed" />
+        
+        <result property="createdAt" column="created_at" />
+        
+    </resultMap>
+    
+    
+
+    <sql id="Base_Column_List">
+        id, title, description, due_date, is_completed, created_at
+    </sql>
+
+    <select id="select" resultMap="com.sample.dbmodel.TodoResultMap">
+        SELECT
+            <include refid="Base_Column_List" />
+        FROM
+            todo
+        <where>
+            
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+            
+            <if test="title != null">
+                AND title = #{title}
+            </if>
+            
+            <if test="description != null">
+                AND description = #{description}
+            </if>
+            
+            <if test="dueDate != null">
+                AND due_date = #{dueDate}
+            </if>
+            
+            <if test="isCompleted != null">
+                AND is_completed = #{isCompleted}
+            </if>
+            
+            <if test="createdAt != null">
+                AND created_at = #{createdAt}
+            </if>
+            
+        </where>
+    </select>
+
+    <insert id="insert" parameterType="com.sample.dbmodel.Todo">
+        INSERT INTO todo (
+            <include refid="Base_Column_List" />
+        )
+        VALUES (
+            #{id}, #{title}, #{description}, #{dueDate}, #{isCompleted}, #{createdAt}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.sample.dbmodel.Todo">
+        UPDATE todo
+        SET
+            
+            id = #{id}, 
+            
+            title = #{title}, 
+            
+            description = #{description}, 
+            
+            due_date = #{dueDate}, 
+            
+            is_completed = #{isCompleted}, 
+            
+            created_at = #{createdAt}
+            
+        WHERE
+            
+            id = #{id} AND 
+            
+            title = #{title} AND 
+            
+            description = #{description} AND 
+            
+            due_date = #{dueDate} AND 
+            
+            is_completed = #{isCompleted} AND 
+            
+            created_at = #{createdAt}
+            
+    </update>
+
+    <delete id="delete">
+        DELETE FROM todo
+        WHERE
+            
+            id = #{id} AND 
+            
+            title = #{title} AND 
+            
+            description = #{description} AND 
+            
+            due_date = #{dueDate} AND 
+            
+            is_completed = #{isCompleted} AND 
+            
+            created_at = #{createdAt}
+            
+    </delete>
+
+</mapper>
