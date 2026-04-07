@@ -30,9 +30,10 @@ jobs:
         run: |
           
           # 
-          zip -r MyBatisSampleTemplateProject.zip MyBatisSampleTemplateProject/ -x "*/target/*" "*/.*"
+          cd MyBatisSampleTemplateProject && zip -r ../MyBatisSampleTemplateProject.zip . -x "target/*" ".*"
           
           # 
+          cd ..
           mv MyBatisSampleTemplateProject.zip com.jhappy.mybateans/src/main/resources/com/jhappy/mybateans/template/
 
       - name: Build with Maven
