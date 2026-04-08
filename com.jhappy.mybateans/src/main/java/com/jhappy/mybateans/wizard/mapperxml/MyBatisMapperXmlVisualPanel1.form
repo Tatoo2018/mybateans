@@ -106,7 +106,7 @@
     <Component class="javax.swing.JTextField" name="txtfFileName">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="com/jhappy/mybateans/wizard/Bundle.properties" key="MyBatisMapperXmlVisualPanel1.txtfFileName.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="com/jhappy/mybateans/wizard/mapperxml/Bundle.properties" key="MyBatisMapperXmlVisualPanel1.txtfFileName.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
         <Property name="enabled" type="boolean" value="false"/>
       </Properties>
@@ -120,21 +120,21 @@
     <Component class="javax.swing.JLabel" name="lblFileName">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="com/jhappy/mybateans/wizard/Bundle.properties" key="MyBatisMapperXmlVisualPanel1.lblFileName.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="com/jhappy/mybateans/wizard/mapperxml/Bundle.properties" key="MyBatisMapperXmlVisualPanel1.lblFileName.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="lblNamespace">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="com/jhappy/mybateans/wizard/Bundle.properties" key="MyBatisMapperXmlVisualPanel1.lblNamespace.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="com/jhappy/mybateans/wizard/mapperxml/Bundle.properties" key="MyBatisMapperXmlVisualPanel1.lblNamespace.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="txtfNamespace">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="com/jhappy/mybateans/wizard/Bundle.properties" key="MyBatisMapperXmlVisualPanel1.txtfNamespace.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="com/jhappy/mybateans/wizard/mapperxml/Bundle.properties" key="MyBatisMapperXmlVisualPanel1.txtfNamespace.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Events>
@@ -147,14 +147,14 @@
     <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="com/jhappy/mybateans/wizard/Bundle.properties" key="MyBatisMapperXmlVisualPanel1.jLabel1.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="com/jhappy/mybateans/wizard/mapperxml/Bundle.properties" key="MyBatisMapperXmlVisualPanel1.jLabel1.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="txtfTableName">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="com/jhappy/mybateans/wizard/Bundle.properties" key="MyBatisMapperXmlVisualPanel1.txtfTableName.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="com/jhappy/mybateans/wizard/mapperxml/Bundle.properties" key="MyBatisMapperXmlVisualPanel1.txtfTableName.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
       <Events>
@@ -167,14 +167,14 @@
     <Component class="javax.swing.JLabel" name="lblTableName">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="com/jhappy/mybateans/wizard/Bundle.properties" key="MyBatisMapperXmlVisualPanel1.lblTableName.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="com/jhappy/mybateans/wizard/mapperxml/Bundle.properties" key="MyBatisMapperXmlVisualPanel1.lblTableName.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="txtfClassName">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="com/jhappy/mybateans/wizard/Bundle.properties" key="MyBatisMapperXmlVisualPanel1.txtfClassName.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="com/jhappy/mybateans/wizard/mapperxml/Bundle.properties" key="MyBatisMapperXmlVisualPanel1.txtfClassName.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
         <Property name="enabled" type="boolean" value="false"/>
       </Properties>
@@ -188,21 +188,21 @@
     <Component class="javax.swing.JLabel" name="jLabel2">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="com/jhappy/mybateans/wizard/Bundle.properties" key="MyBatisMapperXmlVisualPanel1.jLabel2.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="com/jhappy/mybateans/wizard/mapperxml/Bundle.properties" key="MyBatisMapperXmlVisualPanel1.jLabel2.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="lblResultType">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="com/jhappy/mybateans/wizard/Bundle.properties" key="MyBatisMapperXmlVisualPanel1.lblResultType.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="com/jhappy/mybateans/wizard/mapperxml/Bundle.properties" key="MyBatisMapperXmlVisualPanel1.lblResultType.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="txtfResultType">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="com/jhappy/mybateans/wizard/Bundle.properties" key="MyBatisMapperXmlVisualPanel1.txtfResultType.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="com/jhappy/mybateans/wizard/mapperxml/Bundle.properties" key="MyBatisMapperXmlVisualPanel1.txtfResultType.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
         <Property name="enabled" type="boolean" value="false"/>
       </Properties>
@@ -210,7 +210,7 @@
     <Component class="javax.swing.JLabel" name="lblText1">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="com/jhappy/mybateans/wizard/Bundle.properties" key="MyBatisMapperXmlVisualPanel1.lblText1.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="com/jhappy/mybateans/wizard/mapperxml/Bundle.properties" key="MyBatisMapperXmlVisualPanel1.lblText1.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
     </Component>

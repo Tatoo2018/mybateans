@@ -30,6 +30,7 @@ import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataFolder;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
@@ -102,6 +103,7 @@ public final class CreateMapperXmlAction implements ActionListener {
                     }
 
                     String className = typeElement.getSimpleName().toString();
+                    String qualifiedName = typeElement.getQualifiedName().toString();
                     String fqn = typeElement.getQualifiedName().toString();
                     String packageName = fqn.contains(".") ? fqn.substring(0, fqn.lastIndexOf('.')) : "";
                     String tableName = camelToSnake(className);
@@ -133,16 +135,15 @@ public final class CreateMapperXmlAction implements ActionListener {
 
     private void generateXml(DataFolder targetFolder, String className, String fqn, String tableName, List<Map<String, String>> columns) {
         try {
-            InputStream is = getClass().getResourceAsStream("MyBatisMapperTemplate.xml");
-            if (is == null) {
-                return;
-            }
-            String templateStr = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-            is.close();
+
+
+            FileObject templateFO = FileUtil.getConfigFile("Templates/MyBatis/MyBatisMapperTemplate.xml");
+            String templateStr = templateFO.asText("UTF-8");
 
             Map<String, Object> params = new HashMap<>();
             params.put("namespace", fqn + "Mapper");
-            params.put("className", fqn);
+              params.put("className", className);
+            params.put("classFqnName", fqn);
             params.put("tableName", tableName);
             params.put("columns", columns);
 
@@ -157,16 +158,15 @@ public final class CreateMapperXmlAction implements ActionListener {
 
     private void generateJavaMapper(DataFolder targetFolder, String className, String packageName, String tableName) {
         try {
-            InputStream is = getClass().getResourceAsStream("MyBatisMapperJavaTemplate.ftl");
-            if (is == null) {
-                return;
-            }
-            String templateStr = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-            is.close();
+        
+            
+            FileObject templateFO = FileUtil.getConfigFile("Templates/MyBatis/MyBatisMapperJavaTemplate.ftl");
+            String templateStr = templateFO.asText("UTF-8");
 
             Map<String, Object> params = new HashMap<>();
             params.put("packageName", packageName);
             params.put("className", className);
+            params.put("variableName", className.substring(0, 1).toLowerCase() + className.substring(1));
             params.put("tableName", tableName);
 
             String resultJava = applyTemplate(templateStr, params, "MyBatisMapperJavaTemplate.ftl");

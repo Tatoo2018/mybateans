@@ -3,7 +3,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtds/mybatis-3-mapper.dtd">
 <mapper namespace="${namespace}">
 
-    <resultMap id="${className}ResultMap" type="${className}">
+    <resultMap id="${className}ResultMap" type="${classFqnName}">
         <#list columns as col>
         <result property="${col.property}" column="${col.column}" />
         </#list>
@@ -16,18 +16,17 @@
     <select id="select" resultMap="${className}ResultMap">
         SELECT
             <include refid="Base_Column_List" />
-        FROM
+        FROM 
             ${tableName}
-        <where>
+        WHERE 1=1
             <#list columns as col>
             <if test="${col.property} != null">
                 AND ${col.column} = <#noparse>#{</#noparse>${col.property}<#noparse>}</#noparse>
             </if>
             </#list>
-        </where>
     </select>
 
-    <insert id="insert" parameterType="${className}">
+    <insert id="insert" parameterType="${classFqnName}">
         INSERT INTO ${tableName} (
             <include refid="Base_Column_List" />
         )
@@ -36,23 +35,25 @@
         )
     </insert>
 
-    <update id="update" parameterType="${className}">
-        UPDATE ${tableName}
+    <update id="update" parameterType="${classFqnName}">
+        UPDATE 
+            ${tableName}
         SET
             <#list columns as col>
             ${col.column} = <#noparse>#{</#noparse>${col.property}<#noparse>}</#noparse><#if col?has_next>, </#if>
             </#list>
-        WHERE
+        WHERE 1=1
             <#list columns as col>
-            ${col.column} = <#noparse>#{</#noparse>${col.property}<#noparse>}</#noparse><#if col?has_next> AND </#if>
+            AND ${col.column} = <#noparse>#{</#noparse>${col.property}<#noparse>}</#noparse><#if col?has_next></#if>
             </#list>
     </update>
 
     <delete id="delete">
-        DELETE FROM ${tableName}
-        WHERE
+        DELETE FROM 
+            ${tableName}
+        WHERE 1=1
             <#list columns as col>
-            ${col.column} = <#noparse>#{</#noparse>${col.property}<#noparse>}</#noparse><#if col?has_next> AND </#if>
+            AND ${col.column} = <#noparse>#{</#noparse>${col.property}<#noparse>}</#noparse><#if col?has_next></#if>
             </#list>
     </delete>
 

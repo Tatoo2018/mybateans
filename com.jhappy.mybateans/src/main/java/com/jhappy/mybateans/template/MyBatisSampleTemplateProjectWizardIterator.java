@@ -56,7 +56,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 // TODO define position attribute
-@TemplateRegistration(folder = "Project/Samples", displayName = "#MyBatisSampleTemplateProject_displayName", description = "MyBatisSampleTemplateProjectDescription.html", iconBase = "com/jhappy/mybateans/template/MyBatisSampleTemplateProject.png", content = "MyBatisSampleTemplateProject.zip")
+@TemplateRegistration(folder = "Project/Samples/MyBatis", displayName = "#MyBatisSampleTemplateProject_displayName", description = "MyBatisSampleTemplateProjectDescription.html", iconBase = "com/jhappy/mybateans/images/icon.png", content = "MyBatisSampleTemplateProject.zip")
 @Messages("MyBatisSampleTemplateProject_displayName=MyBatis Sample Template Project")
 public class MyBatisSampleTemplateProjectWizardIterator implements WizardDescriptor./*Progress*/InstantiatingIterator {
 
