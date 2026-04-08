@@ -1,5 +1,6 @@
-package com.jhappy.mybateans.wizard;
+package com.jhappy.mybateans.wizard.configxml;
 
+import com.jhappy.mybateans.wizard.mapperxml.*;
 import java.awt.Component;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,12 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.Modifier;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
-import org.netbeans.api.templates.TemplateRegistration;
 import org.netbeans.spi.project.ui.templates.support.Templates;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
@@ -22,8 +19,7 @@ import org.openide.loaders.DataFolder;
 import org.openide.loaders.DataObject;
 import org.openide.util.NbBundle.Messages;
 
-@Messages("MyBatisMapperXmlWizardIterator_displayName=MyBatis Mapper XML")
-public final class MyBatisMapperXmlWizardIterator implements WizardDescriptor.InstantiatingIterator<WizardDescriptor> {
+public final class MyBatisConfigXmlWizardIterator implements WizardDescriptor.InstantiatingIterator<WizardDescriptor> {
 
     private int index;
 
@@ -33,7 +29,8 @@ public final class MyBatisMapperXmlWizardIterator implements WizardDescriptor.In
     private List<WizardDescriptor.Panel<WizardDescriptor>> getPanels() {
         if (panels == null) {
             panels = new ArrayList<WizardDescriptor.Panel<WizardDescriptor>>();
-            panels.add(new MyBatisMapperXmlWizardPanel1());
+            panels.add(new MyBatisConfigXmlWizardPanel());
+            panels.add(new MyBatisConfigXmlWizardPanel2());
             String[] steps = createSteps();
             for (int i = 0; i < panels.size(); i++) {
                 Component c = panels.get(i).getComponent();
@@ -62,35 +59,27 @@ public final class MyBatisMapperXmlWizardIterator implements WizardDescriptor.In
         FileObject targetFolder = Templates.getTargetFolder(wizard);
         FileObject template = Templates.getTemplate(wizard);
 
-        String tableName = (String) wizard.getProperty("tableName");
-        String namespace = (String) wizard.getProperty("namespace");
-
-        String className = MyBatisMapperXmlVisualPanel1.toClassName(tableName);
-        String fileName = className + "Mapper";
-
-        if (namespace != null && !namespace.trim().equals("")) {
-            namespace = namespace + "." + fileName;
-        } else {
-            namespace = fileName;
-        }
-
-        List<Map<String, String>> columns = new ArrayList<>();
-        Map<String, String> colMap = new HashMap<>();
-        colMap.put("property", "id");
-        colMap.put("column", "id");
-        columns.add(colMap);
+        String transactionManagerType = (String) wizard.getProperty("transactionManagerType");
+        String dataSourceType = (String) wizard.getProperty("dataSourceType");
+        String jdbcDriver = (String) wizard.getProperty("jdbcDriver");
+        String jdbcUrl = (String) wizard.getProperty("jdbcUrl");
+        String jndiName = (String) wizard.getProperty("jndiName");
+        String user = (String) wizard.getProperty("user");
+        String password = (String) wizard.getProperty("password");
 
         Map<String, Object> params = new HashMap<>();
-        params.put("namespace", namespace);
-        params.put("className", className);
-        params.put("classFqnName", className);
-        params.put("tableName", tableName);
-        params.put("columns", columns);
+        params.put("transactionManagerType", transactionManagerType);
+        params.put("dataSourceType", dataSourceType);
+        params.put("jdbcDriver", jdbcDriver);
+        params.put("jdbcUrl", jdbcUrl);
+        params.put("jndiName", jndiName);
+        params.put("user", user);
+        params.put("password", password);
 
         DataFolder folder = DataFolder.findFolder(targetFolder);
-        DataObject templateDO = DataObject.find(template).find(template);
+        DataObject templateDO = DataObject.find(template);
 
-        DataObject created = templateDO.createFromTemplate(folder, fileName, params);
+        DataObject created = templateDO.createFromTemplate(folder, "mybatis-config.xml", params);
 
         return Collections.singleton(created.getPrimaryFile());
     }

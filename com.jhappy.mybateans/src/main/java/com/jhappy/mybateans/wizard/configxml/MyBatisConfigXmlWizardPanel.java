@@ -1,17 +1,17 @@
-package com.jhappy.mybateans.wizard;
+package com.jhappy.mybateans.wizard.configxml;
 
 import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
 import org.openide.util.HelpCtx;
 
-public class MyBatisMapperXmlWizardPanel1 implements WizardDescriptor.Panel<WizardDescriptor> {
+public class MyBatisConfigXmlWizardPanel implements WizardDescriptor.Panel<WizardDescriptor> {
 
-    private MyBatisMapperXmlVisualPanel1 component;
+    private MyBatisConfigXmlVisualPanel component;
 
     @Override
-    public MyBatisMapperXmlVisualPanel1 getComponent() {
+    public MyBatisConfigXmlVisualPanel getComponent() {
         if (component == null) {
-            component = new MyBatisMapperXmlVisualPanel1();
+            component = new MyBatisConfigXmlVisualPanel();
         }
         return component;
     }
@@ -25,8 +25,8 @@ public class MyBatisMapperXmlWizardPanel1 implements WizardDescriptor.Panel<Wiza
 
     @Override
     public boolean isValid() {
-        MyBatisMapperXmlVisualPanel1 c = getComponent();
-        return !c.getTableName().isEmpty();
+        MyBatisConfigXmlVisualPanel c = getComponent();
+        return true;
     }
 
     @Override
@@ -39,16 +39,15 @@ public class MyBatisMapperXmlWizardPanel1 implements WizardDescriptor.Panel<Wiza
 
     @Override
     public void readSettings(WizardDescriptor wiz) {
-        
 
     }
 
     @Override
     public void storeSettings(WizardDescriptor wiz) {
-        MyBatisMapperXmlVisualPanel1 c = getComponent();
+        MyBatisConfigXmlVisualPanel c = getComponent();
 
-        wiz.putProperty("tableName", c.getTableName());
-        wiz.putProperty("namespace", c.getNamespace());
+        wiz.putProperty("dataSourceType", c.getDataSourceType());
+        wiz.putProperty("transactionManagerType", c.getTManagerType());
 
     }
 

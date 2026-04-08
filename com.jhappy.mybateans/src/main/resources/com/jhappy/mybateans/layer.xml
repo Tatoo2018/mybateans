@@ -18,17 +18,30 @@
     <folder name="Templates">
            
         <folder name="MyBatis">
-            <file name="MyBatisMapperTemplate.xml" url="nbresloc:/com/jhappy/mybateans/wizard/MyBatisMapperTemplate.xml">
+            <file name="MyBatisMapperTemplate.xml" url="nbresloc:/com/jhappy/mybateans/wizard/mapperxml/MyBatisMapperTemplate.xml">
                 <!--com.jhappy.mybateans.wizard.MyBatisMapperXmlWizardIterator-->
                 <attr boolvalue="true" name="template"/>
                 <attr intvalue="100" name="position"/>
-                <attr bundlevalue="com.jhappy.mybateans.wizard.Bundle#MyBatisMapperXmlWizardIterator_displayName" name="displayName"/>
-                <attr name="instantiatingWizardURL" urlvalue="nbresloc:/com/jhappy/mybateans/wizard/myBatisMapperXml.html"/>
-                <attr name="instantiatingIterator" newvalue="com.jhappy.mybateans.wizard.MyBatisMapperXmlWizardIterator"/>
+                <attr bundlevalue="com.jhappy.mybateans.wizard.mapperxml.Bundle#MyBatisMapperXmlWizardIterator_displayName" name="displayName"/>
+                <attr name="instantiatingWizardURL" urlvalue="nbresloc:/com/jhappy/mybateans/wizard/mapperxml/MyBatisMapperXml.html"/>
+                <attr name="instantiatingIterator" newvalue="com.jhappy.mybateans.wizard.mapperxml.MyBatisMapperXmlWizardIterator"/>
                 <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
                 <attr boolvalue="true" name="requireProject"/>
                 <attr name="iconBase" stringvalue="com/jhappy/mybateans/images/icon.png"/>
             </file>
+            
+            <file name="MyBatisConfigTemplate.xml" url="nbresloc:/com/jhappy/mybateans/wizard/configxml/MyBatisConfigXmlTemplate.ftl">
+                <!--com.jhappy.mybateans.wizard.MyBatisMapperXmlWizardIterator-->
+                <attr boolvalue="true" name="template"/>
+                <attr intvalue="100" name="position"/>
+                <attr bundlevalue="com.jhappy.mybateans.wizard.configxml.Bundle#MyBatisConfigXmlWizardIterator_displayName" name="displayName"/>
+                <attr name="instantiatingWizardURL" urlvalue="nbresloc:/com/jhappy/mybateans/wizard/configxml/MyBatisConfigXml.html"/>
+                <attr name="instantiatingIterator" newvalue="com.jhappy.mybateans.wizard.configxml.MyBatisConfigXmlWizardIterator"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr boolvalue="true" name="requireProject"/>
+                <attr name="iconBase" stringvalue="com/jhappy/mybateans/images/icon.png"/>
+            </file>
+            
             <file name="MyBatisMapperJavaTemplate.ftl" url="nbres:/com/jhappy/mybateans/template/file/MyBatisMapperJavaTemplate.ftl">
                 <attr name="displayName" stringvalue="Mapper Java Class"/>
                 <attr name="template" boolvalue="false"/>

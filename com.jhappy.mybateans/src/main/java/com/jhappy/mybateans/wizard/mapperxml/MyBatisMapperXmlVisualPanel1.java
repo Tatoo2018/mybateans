@@ -1,5 +1,5 @@
 
-package com.jhappy.mybateans.wizard;
+package com.jhappy.mybateans.wizard.mapperxml;
 
 import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
