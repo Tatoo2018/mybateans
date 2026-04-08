@@ -4,17 +4,16 @@
   "https://mybatis.org/dtd/mybatis-3-config.dtd">
 
 <configuration>
-   
-  
+    
     <settings>
-        <setting name="mapUnderscoreToCamelCase" value="true"/>
-        <setting name="logImpl" value="SLF4J"/>
+        <setting name="logImpl" value="STDOUT_LOGGING"/>
+        <!-- <setting name="mapUnderscoreToCamelCase" value="true"/> -->
     </settings>
     
-  
     <typeAliases>
-        <package name="com.sample.dbmodel"/>
-
+      
+        <!-- <package name="com.sample.dbmodel"/> -->
+        <!-- <typeAlias alias="SampleModel" type="com.sample.dbmodel.SampleModel"/> -->
     </typeAliases>
  
     <environments default="dev">
@@ -39,7 +38,8 @@
     </environments>
     
     <mappers>
-        <package name="com.sample.mapper"/>
+        <!-- <package name="com.sample.mapper"/> -->
+        <!-- <mapper resource="com.sample.mapper.SampleMapper.xml"/> -->
     </mappers>
   
 </configuration>
