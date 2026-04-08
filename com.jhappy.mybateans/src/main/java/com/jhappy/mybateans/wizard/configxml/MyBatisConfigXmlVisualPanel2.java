@@ -74,7 +74,7 @@ public final class MyBatisConfigXmlVisualPanel2 extends JPanel {
 
     @Override
     public String getName() {
-        return "Step #1";
+        return "Step #2";
     }
 
     public String getJdbcDriver() {
