@@ -47,7 +47,7 @@
             <div class="row">
                 <div class="formlabel">Due Date:</div>
                 <div class="forminput">
-                    <input type="date" name="dueDate" value="<c:out value='${todo.dueDate}' />">
+                    <input type="date" style="font-size:16px;" name="dueDate" value="<c:out value='${todo.dueDate}' />">
                 </div>
             </div>
 
