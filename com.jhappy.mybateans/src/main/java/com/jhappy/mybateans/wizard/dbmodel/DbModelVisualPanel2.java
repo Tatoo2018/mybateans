@@ -58,6 +58,10 @@ public final class DbModelVisualPanel2 extends JPanel {
      * @param connection the connection to set
      */
     public void setData(DatabaseConnection connection, String schema) {
+        
+        DefaultTableModel model = (DefaultTableModel) tbl.getModel();
+        model.setRowCount(0);
+        
         this.connection = connection;
         this.schema = schema;
         txtSchema.setText(schema);
@@ -87,8 +91,8 @@ public final class DbModelVisualPanel2 extends JPanel {
             } catch (SQLException ex) {
                 Exceptions.printStackTrace(ex);
             }
-
         }
+        
     }
 
     public List<String> getSelectedTables() {
