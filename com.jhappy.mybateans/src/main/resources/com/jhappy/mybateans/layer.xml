@@ -61,6 +61,16 @@
             </file>
         </folder>
     </folder>
+    
+    <folder name="Databases">
+        <folder name="Explorer">
+            <folder name="Connection">
+                <folder name="Actions">
+                    <file name="com-jhappy-mybateans-action-GenerateJavaBeanAction2.instance"/>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
 
 
 </filesystem>

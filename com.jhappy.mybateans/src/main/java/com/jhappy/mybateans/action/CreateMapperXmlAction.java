@@ -41,7 +41,7 @@ import org.openide.util.NbBundle;
     @ActionReference(path = "Loaders/text/x-java/Actions", position = 1274, separatorBefore = 1271),
     @ActionReference(path = "Editors/text/x-java/Popup", position = 9700)
 })
-public final class CreateMapperXmlAction implements ActionListener {
+public class CreateMapperXmlAction implements ActionListener {
 
     private final List<DataObject> context;
 
@@ -53,10 +53,10 @@ public final class CreateMapperXmlAction implements ActionListener {
         String fullFileName = fileName + "." + ext;
         FileObject folderFO = targetFolder.getPrimaryFile();
         FileObject existingFile = folderFO.getFileObject(fullFileName);
-        
+
         if (existingFile != null) {
             NotifyDescriptor nd = new NotifyDescriptor.Message(
-                   NbBundle.getMessage(CreateMapperXmlAction.class, "MSG_FileAlreadyExists", fullFileName),
+                    NbBundle.getMessage(CreateMapperXmlAction.class, "MSG_FileAlreadyExists", fullFileName),
                     NotifyDescriptor.INFORMATION_MESSAGE);
             DialogDisplayer.getDefault().notify(nd);
             return;
@@ -136,13 +136,12 @@ public final class CreateMapperXmlAction implements ActionListener {
     private void generateXml(DataFolder targetFolder, String className, String fqn, String tableName, List<Map<String, String>> columns) {
         try {
 
-
             FileObject templateFO = FileUtil.getConfigFile("Templates/MyBatis/MyBatisMapperTemplate.xml");
             String templateStr = templateFO.asText("UTF-8");
 
             Map<String, Object> params = new HashMap<>();
             params.put("namespace", fqn + "Mapper");
-              params.put("className", className);
+            params.put("className", className);
             params.put("classFqnName", fqn);
             params.put("tableName", tableName);
             params.put("columns", columns);
@@ -158,8 +157,7 @@ public final class CreateMapperXmlAction implements ActionListener {
 
     private void generateJavaMapper(DataFolder targetFolder, String className, String packageName, String tableName) {
         try {
-        
-            
+
             FileObject templateFO = FileUtil.getConfigFile("Templates/MyBatis/MyBatisMapperJavaTemplate.ftl");
             String templateStr = templateFO.asText("UTF-8");
 
@@ -178,7 +176,7 @@ public final class CreateMapperXmlAction implements ActionListener {
         }
     }
 
-    private String applyTemplate(String templateStr, Map<String, Object> params, String fileName) throws Exception {
+    public static String applyTemplate(String templateStr, Map<String, Object> params, String fileName) throws Exception {
         ScriptEngineManager manager = new ScriptEngineManager();
         ScriptEngine engine = manager.getEngineByName("freemarker");
         engine.getContext().setAttribute("javax.script.filename", fileName, ScriptContext.ENGINE_SCOPE);

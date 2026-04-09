@@ -174,6 +174,7 @@ public final class DbModelWizardIterator implements WizardDescriptor.Instantiati
             DataObject templateDO = DataObject.find(template);
             Map<String, Object> param = new HashMap<>();
             param.put("cols", formattedCols);
+            param.put("tableName", table);
             param.put("classname", toUpperCamelCase(table));
             param.put("package", packageName);
             param.put("isUseJpaAnnotation", isUseJpaAnnotation);
