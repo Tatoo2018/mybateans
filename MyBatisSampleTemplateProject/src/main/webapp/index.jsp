@@ -91,7 +91,7 @@
                     Please create this table on database.
                 </div>
                 <div class="messageboxsql">     
-                    CREATE TABLE todos (<br>
+                    CREATE TABLE todo (<br>
                     id INT PRIMARY KEY NOT NULL,<br>
                     title VARCHAR(255),<br>
                     description VARCHAR(1000),<br>

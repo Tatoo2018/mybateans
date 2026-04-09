@@ -7,7 +7,7 @@
 <mapper namespace="com.sample.mapper.TodoMapper">
 
     <select id="findByTitle" resultType="Todo">
-        SELECT * FROM todos WHERE
+        SELECT * FROM todo WHERE
         1=1 
         <if test="title != null">
             AND title like '%' || #{title} || '%' 
@@ -16,24 +16,24 @@
     </select>
     
     <select id="findById" resultType="Todo">
-        SELECT * FROM todos WHERE id = #{id}    
+        SELECT * FROM todo WHERE id = #{id}    
     </select>
 
     <select id="getMaxId" resultType="integer">
-        SELECT MAX(id) FROM todos
+        SELECT MAX(id) FROM todo
     </select>
     
     <delete id="delete">
-        DELETE FROM todos WHERE  id = #{id}
+        DELETE FROM todo WHERE  id = #{id}
     </delete>
 
     <insert id="insert" parameterType="Todo">
-        INSERT INTO todos (id, title, description, due_date)
+        INSERT INTO todo (id, title, description, due_date)
         VALUES (#{id}, #{title}, #{description}, #{dueDate,jdbcType=DATE})
     </insert>
     
     <update id="update" parameterType="Todo">
-        UPDATE todos 
+        UPDATE todo 
         SET title = #{title} 
         ,description = #{description} 
         ,due_date = #{dueDate,jdbcType=DATE} 
@@ -44,6 +44,6 @@
     <select id="checkTableExists" resultType="integer">
         SELECT COUNT(*) 
         FROM SYS.SYSTABLES 
-        WHERE TABLENAME = 'TODOS'
+        WHERE TABLENAME = 'TODO'
     </select>
 </mapper>
