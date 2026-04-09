@@ -1,7 +1,9 @@
 <#assign licenseFirst = "/*">
 <#assign licensePrefix = " * ">
 <#assign licenseLast = " */">
+<#if package?? && package != "">
 package ${package};
+</#if>
 
 <#if isUseJpaAnnotation>
 import javax.persistence.Entity;

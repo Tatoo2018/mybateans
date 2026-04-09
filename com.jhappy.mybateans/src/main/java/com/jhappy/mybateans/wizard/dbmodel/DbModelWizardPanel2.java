@@ -29,6 +29,7 @@ import java.util.Map;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.db.explorer.DatabaseConnection;
 import org.openide.WizardDescriptor;
+import org.openide.util.ChangeSupport;
 import org.openide.util.HelpCtx;
 
 public class DbModelWizardPanel2 implements WizardDescriptor.Panel<WizardDescriptor> {
@@ -38,6 +39,8 @@ public class DbModelWizardPanel2 implements WizardDescriptor.Panel<WizardDescrip
      * component from this class, just use getComponent().
      */
     private DbModelVisualPanel2 component;
+    
+    private final ChangeSupport cs = new ChangeSupport(this);
 
     // Get the visual component for the panel. In this template, the component
     // is kept separate. This can be more efficient: if the wizard is created
@@ -47,6 +50,7 @@ public class DbModelWizardPanel2 implements WizardDescriptor.Panel<WizardDescrip
     public DbModelVisualPanel2 getComponent() {
         if (component == null) {
             component = new DbModelVisualPanel2();
+            component.setController(this);
         }
         return component;
     }
@@ -61,20 +65,23 @@ public class DbModelWizardPanel2 implements WizardDescriptor.Panel<WizardDescrip
 
     @Override
     public boolean isValid() {
-        // If it is always OK to press Next or Finish, then:
-        return true;
-        // If it depends on some condition (form filled out...) and
-        // this condition changes (last form field filled in...) then
-        // use ChangeSupport to implement add/removeChangeListener below.
-        // WizardDescriptor.ERROR/WARNING/INFORMATION_MESSAGE will also be useful.
+       
+        List<String> tables = getComponent().getSelectedTables();
+        return tables!=null && tables.size()!=0;
     }
 
     @Override
     public void addChangeListener(ChangeListener l) {
+        cs.addChangeListener(l);
     }
 
     @Override
     public void removeChangeListener(ChangeListener l) {
+        cs.removeChangeListener(l);
+    }
+    
+    protected final void fireChangeEvent() {
+        cs.fireChange();
     }
 
     @Override

@@ -89,8 +89,10 @@ public final class DbModelWizardIterator implements WizardDescriptor.Instantiati
 
             Connection conn = dbconn.getJDBCConnection();
             if (conn == null) {
+                connection.put("isConnected", false);
                 continue;
             }
+            connection.put("isConnected", true);
 
             try {
                 DatabaseMetaData metadata = conn.getMetaData();

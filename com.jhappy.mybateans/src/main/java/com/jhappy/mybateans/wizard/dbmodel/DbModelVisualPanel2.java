@@ -48,6 +48,12 @@ public final class DbModelVisualPanel2 extends JPanel {
         return connection;
     }
 
+    private DbModelWizardPanel2 controller;
+
+    public void setController(DbModelWizardPanel2 controller) {
+        this.controller = controller;
+    }
+
     /**
      * @param connection the connection to set
      */
@@ -55,6 +61,8 @@ public final class DbModelVisualPanel2 extends JPanel {
         this.connection = connection;
         this.schema = schema;
         txtSchema.setText(schema);
+
+        lblMessage1.setVisible(false);
 
         Connection conn = connection.getJDBCConnection();
         if (conn != null) {
@@ -71,6 +79,9 @@ public final class DbModelVisualPanel2 extends JPanel {
                     }
 
                     listTable.setModel(tableModel);
+                    if (0 == tableModel.size()) {
+                        lblMessage1.setVisible(true);
+                    }
                 }
 
             } catch (SQLException ex) {
@@ -79,20 +90,19 @@ public final class DbModelVisualPanel2 extends JPanel {
 
         }
     }
-    
+
     public List<String> getSelectedTables() {
-        return listTable.getSelectedValuesList();        
+        return listTable.getSelectedValuesList();
     }
-    
-    public Map<String, List<Map<String, Object>>> getTableData(){
-        
+
+    public Map<String, List<Map<String, Object>>> getTableData() {
+
         return tableData;
     }
-    
-    public boolean isUsedJpaAnnotation(){
+
+    public boolean isUsedJpaAnnotation() {
         return chkJpaAnnotation.isSelected();
     }
-    
 
     Map<String, List<Map<String, Object>>> tableData = new HashMap();
 
@@ -161,12 +171,13 @@ public final class DbModelVisualPanel2 extends JPanel {
         initComponents();
 
         listTable.addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) { 
+            if (!e.getValueIsAdjusting()) {
                 String selectedTable = listTable.getSelectedValue();
                 if (selectedTable != null) {
                     showTableDetails(selectedTable);
                 }
             }
+            controller.fireChangeEvent();
         });
     }
 
@@ -204,7 +215,12 @@ public final class DbModelVisualPanel2 extends JPanel {
         scrollPane1 = new javax.swing.JScrollPane();
         tbl = new javax.swing.JTable();
         chkJpaAnnotation = new javax.swing.JCheckBox();
+        lblSchema = new javax.swing.JLabel();
+        lblTableList = new javax.swing.JLabel();
+        lblColumnList = new javax.swing.JLabel();
+        lblMessage1 = new javax.swing.JLabel();
 
+        txtSchema.setEditable(false);
         txtSchema.setText(org.openide.util.NbBundle.getMessage(DbModelVisualPanel2.class, "DbModelVisualPanel2.txtSchema.text")); // NOI18N
         txtSchema.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -249,6 +265,15 @@ public final class DbModelVisualPanel2 extends JPanel {
             }
         });
 
+        org.openide.awt.Mnemonics.setLocalizedText(lblSchema, org.openide.util.NbBundle.getMessage(DbModelVisualPanel2.class, "DbModelVisualPanel2.lblSchema.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(lblTableList, org.openide.util.NbBundle.getMessage(DbModelVisualPanel2.class, "DbModelVisualPanel2.lblTableList.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(lblColumnList, org.openide.util.NbBundle.getMessage(DbModelVisualPanel2.class, "DbModelVisualPanel2.lblColumnList.text")); // NOI18N
+
+        lblMessage1.setForeground(new java.awt.Color(255, 0, 51));
+        org.openide.awt.Mnemonics.setLocalizedText(lblMessage1, org.openide.util.NbBundle.getMessage(DbModelVisualPanel2.class, "DbModelVisualPanel2.lblMessage1.text")); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -256,25 +281,43 @@ public final class DbModelVisualPanel2 extends JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(chkJpaAnnotation, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(lblSchema)
+                        .addGap(18, 18, 18)
+                        .addComponent(txtSchema))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(lblTableList))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(scrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE))
-                    .addComponent(txtSchema)
-                    .addComponent(chkJpaAnnotation, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(lblColumnList)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(scrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 260, Short.MAX_VALUE)))
+                    .addComponent(lblMessage1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(txtSchema, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtSchema, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblSchema))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(chkJpaAnnotation)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addComponent(lblMessage1)
+                .addGap(4, 4, 4)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblTableList)
+                    .addComponent(lblColumnList))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jScrollPane1)
-                    .addComponent(scrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 373, Short.MAX_VALUE))
+                    .addComponent(scrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 344, Short.MAX_VALUE))
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
@@ -290,11 +333,14 @@ public final class DbModelVisualPanel2 extends JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox chkJpaAnnotation;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblColumnList;
+    private javax.swing.JLabel lblMessage1;
+    private javax.swing.JLabel lblSchema;
+    private javax.swing.JLabel lblTableList;
     private javax.swing.JList<String> listTable;
     private javax.swing.JScrollPane scrollPane1;
     private javax.swing.JTable tbl;
     private javax.swing.JTextField txtSchema;
     // End of variables declaration//GEN-END:variables
 
-    
 }

@@ -23,6 +23,7 @@
  */
 package com.jhappy.mybateans.wizard.dbmodel;
 
+import com.vladsch.flexmark.util.dependency.FirstDependent;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -38,10 +39,14 @@ import org.netbeans.api.db.explorer.DatabaseConnection;
 import org.openide.WizardDescriptor;
 import org.openide.awt.StatusDisplayer;
 import org.openide.nodes.FilterNode;
+import org.openide.util.ChangeSupport;
 import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 
 public class DbModelWizardPanel1 implements WizardDescriptor.Panel<WizardDescriptor> {
+    
+    
+    private final ChangeSupport cs = new ChangeSupport(this);
 
     /**
      * The visual component that displays this panel. If you need to access the
@@ -59,6 +64,8 @@ public class DbModelWizardPanel1 implements WizardDescriptor.Panel<WizardDescrip
             component = new DbModelVisualPanel1();
             component.setSchemas(schemas);
             component.setConnectionData(dbconnections);
+            component.setController(this);
+                    
         }
         return component;
     }
@@ -73,20 +80,27 @@ public class DbModelWizardPanel1 implements WizardDescriptor.Panel<WizardDescrip
 
     @Override
     public boolean isValid() {
-        // If it is always OK to press Next or Finish, then:
-        return true;
-        // If it depends on some condition (form filled out...) and
-        // this condition changes (last form field filled in...) then
-        // use ChangeSupport to implement add/removeChangeListener below.
-        // WizardDescriptor.ERROR/WARNING/INFORMATION_MESSAGE will also be useful.
+     
+        if (component == null) return false;
+        
+        String selectedSchema = getComponent().getSelectedSchema();
+        
+        return selectedSchema!=null;
+      
     }
 
     @Override
     public void addChangeListener(ChangeListener l) {
+        cs.addChangeListener(l);
     }
 
     @Override
     public void removeChangeListener(ChangeListener l) {
+        cs.removeChangeListener(l);
+    }
+    
+    protected final void fireChangeEvent() {
+        cs.fireChange();
     }
 
     @Override
