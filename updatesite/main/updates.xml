@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE module_updates PUBLIC "-//NetBeans//DTD Autoupdate Catalog 2.8//EN" "https://netbeans.apache.org/dtds/autoupdate-catalog-2_8.dtd">
+<module_updates timestamp="55/32/12/10/04/2026">
+
+
+
+<module codenamebase="com.jhappy.mybateans" distribution="mybateans-0.2.2-SNAPSHOT.nbm" downloadsize="4731524" needsrestart="false" releasedate="2026/04/10">
+        
+    <manifest OpenIDE-Module="com.jhappy.mybateans" OpenIDE-Module-Display-Category="com.jhappy" OpenIDE-Module-Implementation-Version="0.2.2-20260410" OpenIDE-Module-Long-Description="Provides navigation between Mapper XML files and Java code, as well as log analysis features." OpenIDE-Module-Module-Dependencies="org.netbeans.api.annotations.common/1 &gt; 1.59, org.netbeans.modules.editor/3 &gt; 1.118.0.6.3.23.55, org.netbeans.libs.javacapi &gt; 8.55.0.3, org.netbeans.modules.editor.completion/1 &gt; 1.75.0.2, org.netbeans.modules.editor.lib/3 &gt; 4.38.0.23.3.55, org.netbeans.modules.editor.lib2/1 &gt; 2.51.0.55.3, org.netbeans.modules.editor.mimelookup/1 &gt; 1.71, org.netbeans.modules.html.indexing &gt; 1.15, org.netbeans.modules.java.project/1 &gt; 1.103, org.netbeans.modules.java.source.base &gt; 2.82.0.6.4.3.8.1, org.netbeans.modules.java.sourceui/1 &gt; 1.79.0.2.4.3.32.6, org.netbeans.modules.lexer/2 &gt; 1.94.0.1, org.netbeans.modules.parsing.api/1 &gt; 9.38.0.8, org.netbeans.modules.parsing.indexing &gt; 9.43.0.1.3.8, org.netbeans.modules.projectapi/1 &gt; 1.103, org.netbeans.modules.xml.lexer &gt; 1.53, org.openide.filesystems &gt; 9.44, org.openide.dialogs &gt; 7.78, org.openide.loaders &gt; 7.101, org.openide.nodes &gt; 7.76, org.openide.util &gt; 9.39, org.openide.util.lookup &gt; 8.65, org.openide.util.ui &gt; 9.40, org.openide.text &gt; 6.100, org.openide.windows &gt; 6.108, org.openide.awt &gt; 7.99, org.netbeans.api.templates &gt; 1.39, org.netbeans.modules.projectuiapi/1 &gt; 1.120.0.8, org.netbeans.modules.templates/1 &gt; 1.38, org.netbeans.modules.options.api/1 &gt; 1.76, org.netbeans.modules.extexecution/2 &gt; 1.80, org.openide.io &gt; 1.80, org.netbeans.api.java.classpath/1 &gt; 1.85, org.netbeans.spi.editor.hints/0 &gt; 1.73.0.8.55, org.netbeans.modules.java.source &gt; 0.196.0.32.4.3.6.1, org.netbeans.spi.java.hints &gt; 1.65.0.13.4.3.32.6.8, org.netbeans.modules.db/1 = 30, org.netbeans.modules.db.metadata.model/1 &gt; 1.42, org.openide.modules &gt; 7.79, org.openide.explorer &gt; 6.93" OpenIDE-Module-Name="MyBateans" OpenIDE-Module-Requires="org.openide.modules.ModuleFormat1" OpenIDE-Module-Short-Description="Development tools for MyBatis" OpenIDE-Module-Specification-Version="0.2.2"/>
+    
+    <message_digest algorithm="SHA-512" value="3d97a5afb577ca7421376392f970e03b1726c04f736040c4ed9e5c5687e320d863f4b0cc6eaca33d8571691ff11b2c31aef1268ae9d07ea1db6588633b89b4a5"/>
+</module>
+
+</module_updates>
+
