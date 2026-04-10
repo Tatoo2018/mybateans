@@ -30,6 +30,18 @@
                 <attr name="iconBase" stringvalue="com/jhappy/mybateans/images/icon.png"/>
             </file>
             
+            <file name="JavaBean.java" url="nbresloc:/com/jhappy/mybateans/wizard/dbmodel/JavaBean.ftl">
+                <!--com.jhappy.mybateans.wizard.MyBatisMapperXmlWizardIterator-->
+                <attr boolvalue="true" name="template"/>
+                <attr intvalue="100" name="position"/>
+                <attr bundlevalue="com.jhappy.mybateans.wizard.dbmodel.Bundle#DbModelWizardIterator_displayName" name="displayName"/>
+                <attr name="instantiatingWizardURL" urlvalue="nbresloc:/com/jhappy/mybateans/wizard/dbmodel/dbModel.html"/>
+                <attr name="instantiatingIterator" newvalue="com.jhappy.mybateans.wizard.dbmodel.DbModelWizardIterator"/>
+                <attr name="javax.script.ScriptEngine" stringvalue="freemarker"/>
+                <attr boolvalue="true" name="requireProject"/>
+                <attr name="iconBase" stringvalue="com/jhappy/mybateans/images/icon.png"/>
+            </file>
+            
             <file name="MyBatisConfigTemplate.xml" url="nbresloc:/com/jhappy/mybateans/wizard/configxml/MyBatisConfigXmlTemplate.ftl">
                 <!--com.jhappy.mybateans.wizard.MyBatisMapperXmlWizardIterator-->
                 <attr boolvalue="true" name="template"/>
@@ -50,6 +62,4 @@
         </folder>
     </folder>
     
-    
-
 </filesystem>
